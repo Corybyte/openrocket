@@ -100,10 +100,15 @@ def check(result, answer, dir):
                 f.write("头歌实践教学平台欢迎你\n请认真作答\nYes")
         elif flag and not flag2:
             with open(os.path.join(dir, "result.txt"), 'w') as f:
-                f.write(" longitudinalUnitInertia Error")
-        elif flag and not flag2:
+                f.write(" longitudinalUnitInertia 计算错误")
+                relative_error = abs(result[1]-answer[1])
+                f.write(f"n（误差：{relative_error:.2f}%）\n")
+        elif not flag and flag2:
             with open(os.path.join(dir, "result.txt"), 'w') as f:
-                f.write("rotationalUnitInertia Error")
+                f.write(" rotationalUnitInertia 计算错误")
+                relative_error = abs(result[0]-answer[0])
+                f.write(f"n（误差：{relative_error:.2f}%）\n")
+
         else:
             with open(os.path.join(dir, "result.txt"), 'w') as f:
                 f.write("rotationalUnitInertia and longitudinalUnitInertia Error")
@@ -112,18 +117,13 @@ def check(result, answer, dir):
             with open(os.path.join(dir, "result.txt"), 'w') as f:
                 f.write("头歌实践教学平台欢迎你\n请认真作答\nYes")
         else:
-            scale_factor = 0.2  # 误差缩放参数，可调
-            relative_error = compute_error(answer, result, scale_factor)
+
+            relative_error = abs(result-answer)
             print(relative_error)
             with open(os.path.join(dir, "result.txt"), 'w') as f:
                 f.write("头歌实践教学平台欢迎你\n请认真作答\n")
-                f.write(f"答案错误\n（相对误差：{relative_error:.2f}%）\n")
+                f.write(f"答案错误\n（误差：{relative_error:.2f}%）\n")
 
-def compute_error(answer, result, scale_factor=0.1):
-    """计算误差，避免除零错误"""
-    abs_error = abs(answer - result) * scale_factor  # 绝对误差
-    relative_error = (abs_error / abs(answer)) * 100 if answer != 0 else 0  # 相对误差（防止除 0）
-    return relative_error
 # NoseCone
 @app.route('/NoseCone/calculateCG', methods=['POST'])
 def calculateNoseConeCG():
