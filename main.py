@@ -972,6 +972,8 @@ def check_json_api():
     print(json_b)
 
 
+
+
     # 原json比较
     # ret = check_json(json_a, json_b)
     # 新无序列表比较
@@ -982,8 +984,14 @@ def check_json_api():
             f.write("头歌实践教学平台欢迎你\n请认真作答\n比对成功")
     else:
         print("fail")
+        # 计算最大误差
+        max_error = 0
+        for i in range(len(json_b)):
+            if abs(json_a[i]-json_b[i]) > max_error:
+                max_error = abs(json_a[i]-json_b[i])
         with open(file_path, 'w+') as f:
             f.write("头歌实践教学平台欢迎你\n请认真作答\n比对失败")
+            f.write(f"n（最大误差：{max_error:.2f}%）\n")
 
     return jsonify({"code": 200, "msg": ret})
 
@@ -1010,8 +1018,19 @@ def check_json_api2():
             f.write("头歌实践教学平台欢迎你\n请认真作答\n比对成功")
     else:
         print("fail")
+        max_error = 0
+        max_error2 = 0
+        for i in range(len(json_b)):
+            if abs(json_a[i]-json_b[i]) > max_error:
+                max_error = abs(json_a[i]-json_b[i])
+        for i in range(len(json_b2)):
+            if abs(json_a2[i]-json_b2[i]) > max_error2:
+                max_error2 = abs(json_a2[i]-json_b2[i])
         with open(file_path, 'w+') as f:
             f.write("头歌实践教学平台欢迎你\n请认真作答\n比对失败")
+            f.write(f"n（线性加速度最大误差：{max_error:.2f}%）\n")
+            f.write(f"n（角加速度最大误差：{max_error2:.2f}%）\n")
+
 
     return jsonify({"code": 200, "msg": ret})
 
@@ -1041,9 +1060,23 @@ def check_json_api4():
             f.write("头歌实践教学平台欢迎你\n请认真作答\n比对成功")
     else:
         print("fail")
+        max_error = 0
+        max_error2 = 0
+        max_error3 = 0
+        for i in range(len(json_b)):
+            if abs(json_a[i] - json_b[i]) > max_error:
+                max_error = abs(json_a[i] - json_b[i])
+        for i in range(len(json_b2)):
+            if abs(json_a2[i] - json_b2[i]) > max_error2:
+                max_error2 = abs(json_a2[i] - json_b2[i])
+        for i in range(len(json_b3)):
+            if abs(json_a3[i] - json_b3[i]) > max_error3:
+                max_error3 = abs(json_a3[i] - json_b3[i])
         with open(file_path, 'w+') as f:
             f.write("头歌实践教学平台欢迎你\n请认真作答\n比对失败")
-
+            f.write(f"n（力矩最大误差：{max_error:.2f}%）\n")
+            f.write(f"n（法向力最大误差：{max_error2:.2f}%）\n")
+            f.write(f"n（滚转力矩最大误差：{max_error3:.2f}%）\n")
     return jsonify({"code": 200, "msg": ret})
 
 
