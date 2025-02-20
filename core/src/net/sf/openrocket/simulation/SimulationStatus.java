@@ -42,7 +42,7 @@ public class SimulationStatus implements Monitorable {
 	private FlightConfiguration configuration;
 	private FlightDataBranch flightData;
 	
-	private double time;
+	public static double time;
 	
 	private Coordinate position;
 	private WorldCoordinate worldPosition;

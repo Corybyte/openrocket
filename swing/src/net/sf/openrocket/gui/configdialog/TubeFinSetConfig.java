@@ -31,6 +31,8 @@ import retrofit2.Response;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import static net.sf.openrocket.gui.configdialog.NoseConeConfig.roundToFiveDecimals;
+
 public class TubeFinSetConfig extends RocketComponentConfig {
     private static final long serialVersionUID = 508482875624928676L;
     private static final Translator trans = Application.getTranslator();
@@ -186,7 +188,17 @@ public class TubeFinSetConfig extends RocketComponentConfig {
                             if (code == 200) {
                                 SwingUtilities.invokeLater(() -> {
                                     checkResult.setText(trans.get("NoseConeCfg.lbl.checkResult") + ": " + result.getResult());
-                                    answerLabel.setText(trans.get("NoseConeCfg.lbl.answer") + ": " + component.getComponentCG().x);
+                                    String msg = "";
+                                    double answer = component.getComponentCG().x;
+                                    double resultResult = (double) result.getResult();
+                                    if (roundToFiveDecimals(answer)==roundToFiveDecimals(resultResult)){
+                                        msg = "答案:"+String.valueOf(answer);
+                                    }else {
+                                        double absError = Math.abs(resultResult - answer) * 0.1;
+                                        double relativeError = (answer != 0) ? (absError / Math.abs(answer)) * 100 : 0;
+                                        msg = "误差："+String.valueOf(relativeError)+"%";
+                                    }
+                                    answerLabel.setText(msg);
                                 });
                             } else {
                                 SwingUtilities.invokeLater(() ->
@@ -284,7 +296,17 @@ public class TubeFinSetConfig extends RocketComponentConfig {
                             if (code == 200) {
                                 SwingUtilities.invokeLater(() -> {
                                     checkResult.setText(trans.get("TubeFinSet.lbl.checkResult") + ": " + result.getResult());
-                                    answerLabel.setText(trans.get("TubeFinSet.lbl.answer") + ": " + forces.getCP().x);
+                                    String msg = "";
+                                    double answer =forces.getCP().x;
+                                    double resultResult = (double) result.getResult();
+                                    if (roundToFiveDecimals(answer)==roundToFiveDecimals(resultResult)){
+                                        msg = "答案:"+String.valueOf(answer);
+                                    }else {
+                                        double absError = Math.abs(resultResult - answer) * 0.1;
+                                        double relativeError = (answer != 0) ? (absError / Math.abs(answer)) * 100 : 0;
+                                        msg = "误差："+String.valueOf(relativeError)+"%";
+                                    }
+                                    answerLabel.setText(msg);
                                 });
                             } else {
                                 SwingUtilities.invokeLater(() ->
@@ -364,7 +386,25 @@ public class TubeFinSetConfig extends RocketComponentConfig {
                             if (code == 200) {
                                 SwingUtilities.invokeLater(() -> {
                                     checkResult.setText(trans.get("TubeFinSet.lbl.checkResult") + ": " + result.getResult()[0] + "," + result.getResult()[1]);
-                                    answerLabel.setText(trans.get("TubeFinSet.lbl.answer") + ": " + component.getRotationalUnitInertia() + "," + component.getLongitudinalUnitInertia());
+                                    String msg = "";
+                                    String msg2 = "";
+                                    double answer =  component.getRotationalUnitInertia();
+                                    double answer2 = component.getLongitudinalUnitInertia();
+
+                                    double resultResult = (double) result.getResult()[0];
+                                    double resultResult2 = (double) result.getResult()[1];
+                                    if (roundToFiveDecimals(answer)==roundToFiveDecimals(resultResult)){
+                                        msg = "答案:"+String.valueOf(answer+","+answer2);
+                                    }else {
+                                        double absError = Math.abs(resultResult - answer) * 0.1;
+                                        double relativeError = (answer != 0) ? (absError / Math.abs(answer)) * 100 : 0;
+                                        msg = "误差："+String.valueOf(relativeError)+"%";
+
+                                        double absError2 = Math.abs(resultResult2 - answer2) * 0.1;
+                                        double relativeError2 = (answer2 != 0) ? (absError2 / Math.abs(answer2)) * 100 : 0;
+                                        msg2 = String.valueOf(relativeError2)+"%";
+                                    }
+                                    answerLabel.setText(msg+","+msg2);
                                 });
                             } else {
                                 SwingUtilities.invokeLater(() ->

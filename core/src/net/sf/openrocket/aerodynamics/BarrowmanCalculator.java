@@ -5,6 +5,7 @@ import java.util.*;
 import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.*;
+import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.startup.OpenRocket;
 import net.sf.openrocket.utils.educoder.*;
 import org.slf4j.Logger;
@@ -921,10 +922,8 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
             request.prevAftRadius = prevAftRadius;
             request.componentCD = componentCD;
             synchronized (BarrowmanCalculator.class) {
-                long time = System.currentTimeMillis();
-
+                double time = SimulationStatus.time;
                 TotalPressureCDRequest.server_cn.add("[" + time + "]" + total);
-                OpenRocket.flag = "calculateTotalPressureCD";
                 if (OpenRocket.flag.equals("calculateTotalPressureCD") || OpenRocket.flag.equals("")) {
                     System.out.println("calculateTotalPressureCD请求开始.....");
                     OpenRocket.eduCoderService.calculateTotalPressureCD(request).enqueue(new Callback<Result>() {

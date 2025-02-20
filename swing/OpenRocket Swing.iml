@@ -400,5 +400,6 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="lib11" level="project" />
   </component>
 </module>

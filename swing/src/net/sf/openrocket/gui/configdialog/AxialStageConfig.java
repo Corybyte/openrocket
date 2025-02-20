@@ -23,6 +23,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static net.sf.openrocket.gui.configdialog.NoseConeConfig.roundToFiveDecimals;
+
 public class AxialStageConfig extends ComponentAssemblyConfig {
     private static final long serialVersionUID = -944969957186522471L;
     private static final Translator trans = Application.getTranslator();
@@ -108,7 +110,17 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
                         if (code == 200) {
                             SwingUtilities.invokeLater(() -> {
                                 checkResult.setText(trans.get("common.lbl.checkResult") + ": " + result.getResult());
-                                answerLabel.setText(trans.get("common.lbl.answer") + ": " + stage.getComponentCG().x);
+                                String msg = "";
+                                double answer = stage.getComponentCG().x;
+                                double resultResult = (double) result.getResult();
+                                if (roundToFiveDecimals(answer)==roundToFiveDecimals(resultResult)){
+                                    msg = "答案:"+String.valueOf(answer);
+                                }else {
+                                    double absError = Math.abs(resultResult - answer) * 0.1;
+                                    double relativeError = (answer != 0) ? (absError / Math.abs(answer)) * 100 : 0;
+                                    msg = "误差："+String.valueOf(relativeError)+"%";
+                                }
+                                answerLabel.setText(msg);
                             });
                         } else {
                             SwingUtilities.invokeLater(() ->
@@ -160,7 +172,17 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
                             if (code == 200) {
                                 SwingUtilities.invokeLater(() -> {
                                     checkResult.setText(trans.get("common.lbl.checkResult") + ": " + result.getResult());
-                                    answerLabel.setText(trans.get("common.lbl.answer") + ": " + "0.0");
+                                    String msg = "";
+                                    double answer =0.0;
+                                    double resultResult = (double) result.getResult();
+                                    if (roundToFiveDecimals(answer)==roundToFiveDecimals(resultResult)){
+                                        msg = "答案:"+String.valueOf(answer);
+                                    }else {
+                                        double absError = Math.abs(resultResult - answer) * 0.1;
+                                        double relativeError = (answer != 0) ? (absError / Math.abs(answer)) * 100 : 0;
+                                        msg = "误差："+String.valueOf(relativeError)+"%";
+                                    }
+                                    answerLabel.setText(msg);
                                 });
                             } else {
                                 SwingUtilities.invokeLater(() ->
@@ -210,7 +232,25 @@ public class AxialStageConfig extends ComponentAssemblyConfig {
                         if (code == 200) {
                             SwingUtilities.invokeLater(() -> {
                                 checkResult.setText(trans.get("NoseConeCfg.lbl.checkResult") + ": " + result.getResult()[0] + "," + result.getResult()[1]);
-                                answerLabel.setText(trans.get("NoseConeCfg.lbl.answer") + ": " + stage.getRotationalUnitInertia() + "," + stage.getLongitudinalUnitInertia());
+                                String msg = "";
+                                String msg2 = "";
+                                double answer =  stage.getRotationalUnitInertia();
+                                double answer2 = stage.getLongitudinalUnitInertia();
+
+                                double resultResult = (double) result.getResult()[0];
+                                double resultResult2 = (double) result.getResult()[1];
+                                if (roundToFiveDecimals(answer)==roundToFiveDecimals(resultResult)){
+                                    msg = "答案:"+String.valueOf(answer+","+answer2);
+                                }else {
+                                    double absError = Math.abs(resultResult - answer) * 0.1;
+                                    double relativeError = (answer != 0) ? (absError / Math.abs(answer)) * 100 : 0;
+                                    msg = "误差："+String.valueOf(relativeError)+"%";
+
+                                    double absError2 = Math.abs(resultResult2 - answer2) * 0.1;
+                                    double relativeError2 = (answer2 != 0) ? (absError2 / Math.abs(answer2)) * 100 : 0;
+                                    msg2 = String.valueOf(relativeError2)+"%";
+                                }
+                                answerLabel.setText(msg+","+msg2);
                             });
                         } else {
                             SwingUtilities.invokeLater(() ->

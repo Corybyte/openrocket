@@ -979,11 +979,11 @@ public class SimulationExportPanel extends JPanel {
 			@Override
 			public int compare(String s1, String s2) {
 				// 提取 s1 的时间戳
-				long timestamp1 = extractTimestamp(s1);
+				double timestamp1 = extractTimestamp(s1);
 				// 提取 s2 的时间戳
-				long timestamp2 = extractTimestamp(s2);
+				double timestamp2 = extractTimestamp(s2);
 				// 比较时间戳
-				return Long.compare(timestamp1, timestamp2);
+				return Double.compare(timestamp1, timestamp2);
 			}
 		});
 
@@ -996,12 +996,12 @@ public class SimulationExportPanel extends JPanel {
 	 * @param s 格式为 [时间戳]数据 的字符串
 	 * @return 时间戳
 	 */
-	private static long extractTimestamp(String s) {
+	private static double extractTimestamp(String s) {
 		// 找到时间戳结束的位置（即 "]")
 		int endIndex = s.indexOf("]");
 		if (endIndex != -1) {
 			// 提取时间戳部分并转换为 long
-			return Long.parseLong(s.substring(1, endIndex));
+			return Double.parseDouble(s.substring(1, endIndex));
 		}
 		// 如果格式不正确，返回 0（可以根据需求调整）
 		return 0;

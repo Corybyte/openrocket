@@ -269,8 +269,7 @@ public class NoseConeConfig extends RocketComponentConfig {
                                     if (roundToFiveDecimals(answer)==roundToFiveDecimals(resultResult)){
                                         msg = "答案:"+String.valueOf(answer);
                                     }else {
-                                        double abs_error = Math.abs(component.getComponentCG().x-(double)result.getResult())*0.1;
-                                        double absError = Math.abs(resultResult - answer) * 0.1;
+                                     double absError = Math.abs(resultResult - answer) * 0.1;
                                         double relativeError = (answer != 0) ? (absError / Math.abs(answer)) * 100 : 0;
                                         msg = "误差："+String.valueOf(relativeError)+"%";
                                     }
@@ -361,7 +360,17 @@ public class NoseConeConfig extends RocketComponentConfig {
                             if (code == 200) {
                                 SwingUtilities.invokeLater(() -> {
                                     checkResult.setText(trans.get("NoseConeCfg.lbl.checkResult") + ": " + result.getResult());
-                                    answerLabel.setText(trans.get("NoseConeCfg.lbl.answer") + ": " + calculation.getCM().x);
+                                    String msg = "";
+                                    double answer = calculation.getCM().x;
+                                    double resultResult = (double) result.getResult();
+                                    if (roundToFiveDecimals(answer)==roundToFiveDecimals(resultResult)){
+                                        msg = "答案:"+String.valueOf(answer);
+                                    }else {
+                                        double absError = Math.abs(resultResult - answer) * 0.1;
+                                        double relativeError = (answer != 0) ? (absError / Math.abs(answer)) * 100 : 0;
+                                        msg = "误差："+String.valueOf(relativeError)+"%";
+                                    }
+                                    answerLabel.setText(msg);
                                 });
                             } else {
                                 SwingUtilities.invokeLater(() ->
@@ -454,7 +463,18 @@ public class NoseConeConfig extends RocketComponentConfig {
 
                                 SwingUtilities.invokeLater(() -> {
                                     checkResult.setText(trans.get("NoseConeCfg.lbl.checkResult") + ": " + result.getResult());
-                                    answerLabel.setText(trans.get("NoseConeCfg.lbl.answer") + ": " + forces.getCP().x);
+                                    String msg = "";
+                                    double answer = forces.getCP().x;
+                                    double resultResult = (double) result.getResult();
+                                    if (roundToFiveDecimals(answer)==roundToFiveDecimals(resultResult)){
+                                        msg = "答案:"+String.valueOf(answer);
+                                    }else {
+                                        double absError = Math.abs(resultResult - answer) * 0.1;
+                                        double relativeError = (answer != 0) ? (absError / Math.abs(answer)) * 100 : 0;
+                                        msg = "误差："+String.valueOf(relativeError)+"%";
+                                    }
+                                    answerLabel.setText(msg);
+
                                 });
                             } else {
                                 SwingUtilities.invokeLater(() ->
@@ -605,7 +625,17 @@ public class NoseConeConfig extends RocketComponentConfig {
                             if (code == 200) {
                                 SwingUtilities.invokeLater(() -> {
                                     checkResult.setText(trans.get("NoseConeCfg.lbl.checkResult") + ": " + result.getResult());
-                                    answerLabel.setText(trans.get("NoseConeCfg.lbl.answer") + ": " + cp.x);
+                                    String msg = "";
+                                    double answer =  cp.x;
+                                    double resultResult = (double) result.getResult();
+                                    if (roundToFiveDecimals(answer)==roundToFiveDecimals(resultResult)){
+                                        msg = "答案:"+String.valueOf(answer);
+                                    }else {
+                                        double absError = Math.abs(resultResult - answer) * 0.1;
+                                        double relativeError = (answer != 0) ? (absError / Math.abs(answer)) * 100 : 0;
+                                        msg = "误差："+String.valueOf(relativeError)+"%";
+                                    }
+                                    answerLabel.setText(msg);
                                 });
                             } else {
                                 SwingUtilities.invokeLater(() ->
@@ -717,7 +747,26 @@ public class NoseConeConfig extends RocketComponentConfig {
                             if (code == 200) {
                                 SwingUtilities.invokeLater(() -> {
                                     checkResult.setText(trans.get("NoseConeCfg.lbl.checkResult") + ": " + result.getResult()[0] + "," + result.getResult()[1]);
-                                    answerLabel.setText(trans.get("NoseConeCfg.lbl.answer") + ": " + component.getRotationalUnitInertia() + "," + component.getLongitudinalUnitInertia());
+
+                                    String msg = "";
+                                    String msg2 = "";
+                                    double answer = component.getRotationalUnitInertia();
+                                    double answer2 = component.getLongitudinalInertia();
+                                    double resultResult = (double) result.getResult()[0];
+                                    double resultResult2 = (double) result.getResult()[1];
+                                    if (roundToFiveDecimals(answer)==roundToFiveDecimals(resultResult)){
+                                        msg = "答案:"+String.valueOf(answer)+","+answer2;
+                                    }else {
+                                        double absError = Math.abs(resultResult - answer) * 0.1;
+                                        double relativeError = (answer != 0) ? (absError / Math.abs(answer)) * 100 : 0;
+                                        msg = "误差："+String.valueOf(relativeError)+"%";
+
+                                        double absError2 = Math.abs(resultResult2 - answer2) * 0.1;
+                                        double relativeError2 = (answer2 != 0) ? (absError2 / Math.abs(answer2)) * 100 : 0;
+                                        msg2 = "误差："+String.valueOf(relativeError2)+"%";
+                                    }
+                                    answerLabel.setText(msg+","+msg2);
+
                                 });
                             } else {
                                 SwingUtilities.invokeLater(() ->
@@ -804,7 +853,25 @@ public class NoseConeConfig extends RocketComponentConfig {
                             if (code == 200) {
                                 SwingUtilities.invokeLater(() -> {
                                     checkResult.setText(trans.get("NoseConeCfg.lbl.checkResult") + ": " + result.getResult()[0] + "," + result.getResult()[1]);
-                                    answerLabel.setText(trans.get("NoseConeCfg.lbl.answer") + ": " + rigidBody.Ixx + "," + rigidBody.Iyy);
+
+                                    String msg = "";
+                                    String msg2 = "";
+                                    double answer =  rigidBody.Ixx;
+                                    double answer2 = rigidBody.Iyy;
+                                    double resultResult = (double) result.getResult()[0];
+                                    double resultResult2 = (double) result.getResult()[1];
+                                    if (roundToFiveDecimals(answer)==roundToFiveDecimals(resultResult)){
+                                        msg = "答案:"+String.valueOf(answer+","+answer2);
+                                    }else {
+                                        double absError = Math.abs(resultResult - answer) * 0.1;
+                                        double relativeError = (answer != 0) ? (absError / Math.abs(answer)) * 100 : 0;
+                                        msg = "误差："+String.valueOf(relativeError)+"%";
+
+                                        double absError2 = Math.abs(resultResult2 - answer2) * 0.1;
+                                        double relativeError2 = (answer2 != 0) ? (absError2 / Math.abs(answer2)) * 100 : 0;
+                                        msg2 = String.valueOf(relativeError2)+"%";
+                                    }
+                                    answerLabel.setText(msg+","+msg2);
                                 });
                             } else {
                                 SwingUtilities.invokeLater(() ->
