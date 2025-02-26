@@ -202,7 +202,7 @@ public class FinRenderer {
 		gl.glMatrixMode(GL.GL_TEXTURE);
 		gl.glPopMatrix();
 		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
-		generateWings(outerPoints,finSet.getThickness(),0.03,finSet.getFinCount(),-bounds.min.x,-bounds.min.y,finSet.getBodyRadius());
+	//	generateWings(outerPoints,finSet.getThickness(),0.03,finSet.getFinCount(),-bounds.min.x,-bounds.min.y,finSet.getBodyRadius());
 		
 	}
 	public static void generateWings(List<double[]> coordinates, double thickness, double density, int count,double x,double y,double bodyRadius) {

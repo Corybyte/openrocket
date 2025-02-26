@@ -233,11 +233,6 @@ public class ComponentRenderer {
         gl.glRotated(90, 0, 1.0, 0);
         if (which == Surface.OUTSIDE) {
             glu.gluCylinder(q, oR, oR, len, LOD, 1);
-            // 提取外表坐标
-            List<Coordinate> outerCoordinates = extractOuterCoordinates(gl, oR, len, LOD,90);
-            if (component instanceof BodyTube){
-                saveOuterCoordinates(outerCoordinates);
-            }
         }
         //edges
         gl.glRotated(180, 0, 1.0, 0);
@@ -309,29 +304,8 @@ public class ComponentRenderer {
     }
 
 
+    // 计算箭体的外表数据点
 
-    public void saveOuterCoordinates(List<Coordinate> coordinates) {
-        System.out.println("Captured outer surface coordinates:");
-
-        // 定义文件路径
-        String filePath = "E://bodytube.txt";
-
-        // 使用 FileWriter 的追加模式
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) { // true 表示追加模式
-            // 遍历坐标列表，将每个坐标写入文件
-            for (Coordinate coordinate : coordinates) {
-                String formattedCoordinate = String.format("(%s, %s, %s),",
-                        coordinate.x, coordinate.y, coordinate.z);
-                writer.write(formattedCoordinate);
-                writer.newLine(); // 换行
-            }
-
-
-            System.out.println("Coordinates saved to " + filePath);
-        } catch (IOException e) {
-            System.err.println("Error writing to file: " + e.getMessage());
-        }
-    }
 
 
 
@@ -497,4 +471,9 @@ public class ComponentRenderer {
         }
         gl.glPopMatrix();
     }
+
+
+
+
+
 }

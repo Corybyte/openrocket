@@ -3,18 +3,12 @@ package net.sf.openrocket.startup;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.IntStream;
 
@@ -22,6 +16,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.plaf.synth.SynthOptionPaneUI;
 
 import com.oracle.truffle.js.builtins.temporal.TemporalCalendarPrototypeBuiltins;
@@ -49,15 +44,13 @@ import net.sf.openrocket.gui.util.*;
 import net.sf.openrocket.logging.LoggingSystemSetup;
 import net.sf.openrocket.logging.PrintStreamToSLF4J;
 import net.sf.openrocket.plugin.PluginModule;
-import net.sf.openrocket.rocketcomponent.InstanceContext;
-import net.sf.openrocket.rocketcomponent.InstanceMap;
-import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.rocketcomponent.*;
 import net.sf.openrocket.util.BuildProperties;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import net.sf.openrocket.util.Coordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,11 +69,12 @@ public class SwingStartup {
 
     private final static Logger log = LoggerFactory.getLogger(SwingStartup.class);
     private static BasicFrame start = null;
+
     /**
      * OpenRocket 启动主方法。
      */
     public static void main(final String[] args) throws Exception {
-        Thread thread1 = new Thread(()->{
+        Thread thread1 = new Thread(() -> {
             watchDirectory("/tmp");
         });
         Thread thread2 = new Thread(() -> {
@@ -89,7 +83,6 @@ public class SwingStartup {
         thread1.start();
         thread2.start();
         System.setProperty("jogl.disable.openglcore", "true"); // 禁用硬件加速
-
 
 
         //在执行其他任何操作之前检查“openrocket.debug”属性
@@ -135,21 +128,67 @@ public class SwingStartup {
         if (args.length > 0) {
             System.out.println(args[0]);
         }
-     //   watchDirectory("/tmp");
+        //   watchDirectory("/tmp");
 
-      //  watchDirectory2("/data/workspace/myshixun");
-       // watchDirectory2("C:\\Users\\86704\\Desktop\\23cuw9jt");
-		//定时存json
+        //  watchDirectory2("/data/workspace/myshixun");
+        // watchDirectory2("C:\\Users\\86704\\Desktop\\23cuw9jt");
+        //定时存json
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(() -> {
             try {
                 System.out.println("json....");
-                serializeObjectToJsonFile(OpenRocketDocumentFactory.mydoc.getRocket().getSelectedConfiguration().getActiveInstances(), "E:/object.json");
-            } catch (IOException e) {
-                e.printStackTrace();
+                // serializeObjectToJsonFile(OpenRocketDocumentFactory.mydoc.getRocket().getSelectedConfiguration().getActiveInstances(), "E:/object.json");
+                //序列化密集点
+                File file = new File("E:/rocket.txt");
+                File file2 = new File("E://finset.txt");
+                if (file.exists()) {
+                    file.delete();
+                }
+                if (file2.exists()) {
+                    file.delete();
+                }
+                List<RocketComponent> allChildren = OpenRocketDocumentFactory.mydoc.getRocket().getAllChildren();
+                //待密集组件list
+                ArrayList<RocketComponent> components = new ArrayList<>();
+                for (RocketComponent component : allChildren) {
+                    if (component instanceof Transition || component instanceof FinSet || component instanceof BodyTube) {
+                        components.add(component);
+                    }
+                }
+                double beginX = 0;
+                for (RocketComponent c : components) {
+                    if (c instanceof BodyTube) {
+                        beginX = bodyTube3D(c.getLength(), ((BodyTube) c).getOuterRadius(), 50, 100, beginX);
+                    }
+                    if (c instanceof NoseCone) {
+                        double endX = noseCone3D((Transition) c, ((Transition) c).getShapeType(), c.getLength(), ((NoseCone) c).getBaseRadius(), 100, beginX);
+                        beginX = endX;
+                    }
+                    if (c instanceof Transition && !(c instanceof NoseCone)) {
+                        double endX = transition3D((Transition) c, ((Transition) c).getShapeType(), c.getLength(), ((Transition) c).getForeRadius(), ((Transition) c).getAftRadius(), 100, beginX);
+                        beginX = endX;
+                    }
+                    if (c instanceof FinSet) {
+                        try (FileWriter writer = new FileWriter("E://finset.txt", true)) {
+                            writer.write("--- FIN SET ---\n");
+                            Coordinate[] finPoints = ((FinSet) c).getFinPoints();
+                            for (Coordinate coordinate : finPoints) {
+                                writer.write(coordinate.x + " " + coordinate.y + " " + coordinate.z + "\n");
+                            }
+                            System.out.println("finset write success");
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                }
+
             }
-        }, 0, 10, TimeUnit.SECONDS);
-    }
+
+
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+    },0,10,TimeUnit.SECONDS);
+}
 
 
     public static void serializeObjectToJsonFile(InstanceMap obj, String filePath) throws IOException {
@@ -176,7 +215,7 @@ public class SwingStartup {
                 if (!(key instanceof Rocket)) {
                     // 直接将键序列化为对象形式，避免多层嵌套的字符串
                     Map map = mapper.convertValue(key, Map.class);
-                    map.put("rocketComponent",key.getClass().getSimpleName());
+                    map.put("rocketComponent", key.getClass().getSimpleName());
                     keysAsJson.add(map);
                 }
             } catch (Exception e) {
@@ -330,7 +369,6 @@ public class SwingStartup {
             System.err.println("监听器发生错误: " + e.getMessage());
         }
     }
-
 
 
     /**
@@ -529,7 +567,7 @@ public class SwingStartup {
                     if (info != null && info.getException() == null && info.getReleaseStatus() == ReleaseStatus.OLDER &&
                             !preferences.getIgnoreUpdateVersions().contains(info.getLatestRelease().getReleaseName())) {
                         UpdateInfoDialog infoDialog = new UpdateInfoDialog(info);
-                     //   infoDialog.setVisible(true);
+                        //   infoDialog.setVisible(true);
                     }
                 }
                 count--;
@@ -589,5 +627,126 @@ public class SwingStartup {
         }
         return opened;
     }
+
+    public static double bodyTube3D(double length, double outerRadius, int numPointsCircumference, int numPointsLength, double totalLen) {
+        double endX = 0;
+        List<double[]> points = new ArrayList<>();
+
+        for (int i = 0; i <= numPointsLength; i++) {
+            double x = i * (length / numPointsLength) + totalLen;
+
+            for (int j = 0; j < numPointsCircumference; j++) {
+                double theta = 2 * Math.PI * j / numPointsCircumference;
+                double z = outerRadius * Math.cos(theta);
+                double y = outerRadius * Math.sin(theta);
+                points.add(new double[]{x, y, z});
+                endX = x;
+            }
+        }
+        savePointsToFile(points);
+        return endX;
+    }
+
+    public static double noseCone3D(Transition c, Transition.Shape type, double length, double radius, int numPoints, double beginX) {
+        List<double[]> points = new ArrayList<>();
+        double endX = 0;
+        for (int i = 0; i < numPoints; i++) {
+            double x = (double) i / (numPoints - 1) * length + beginX;
+            double r = 0; // 半径
+
+            switch (type) {
+                case CONICAL:
+                    r = Transition.Shape.CONICAL.getRadius(x, radius, length, c.getShapeParameter());
+                    break;
+                case OGIVE:
+                    r = Transition.Shape.OGIVE.getRadius(x, radius, length, c.getShapeParameter());
+                    break;
+                case ELLIPSOID:
+                    r = Transition.Shape.ELLIPSOID.getRadius(x, radius, length, c.getShapeParameter());
+                    break;
+                case POWER:
+                    r = Transition.Shape.POWER.getRadius(x, radius, length, c.getShapeParameter());
+                    break;
+                case PARABOLIC:
+                    r = Transition.Shape.PARABOLIC.getRadius(x, radius, length, c.getShapeParameter());
+                    break;
+                case HAACK:
+                    r = Transition.Shape.HAACK.getRadius(x, radius, length, c.getShapeParameter());
+                    break;
+            }
+
+            // 生成3D点 (绕Z轴旋转得到完整3D模型)
+            int radialPoints = 36; // 角度分割数量
+            for (int j = 0; j < radialPoints; j++) {
+                double angle = 2 * Math.PI * j / radialPoints;
+                double y = r * Math.cos(angle);
+                double z = r * Math.sin(angle);
+                points.add(new double[]{x, y, z});
+            }
+            endX = x;
+        }
+        savePointsToFile(points);
+        return endX;
+
+    }
+
+    public static double transition3D(Transition c, Transition.Shape type, double length, double foreRadius, double aftRadius, int numPoints, double beginX) {
+        List<double[]> points = new ArrayList<>();
+        double endX = 0.0;
+        for (int i = 0; i < numPoints; i++) {
+            double x = (double) i / (numPoints - 1) * length + beginX;
+            double r = 0; // 半径
+
+            switch (type) {
+                case CONICAL:
+                    r = foreRadius + Transition.Shape.CONICAL.getRadius(x, aftRadius - foreRadius, length, c.getShapeParameter());
+                    break;
+                case OGIVE:
+                    r = foreRadius + Transition.Shape.OGIVE.getRadius(x, aftRadius - foreRadius, length, c.getShapeParameter());
+                    break;
+                case ELLIPSOID:
+                    r = foreRadius + Transition.Shape.ELLIPSOID.getRadius(x, aftRadius - foreRadius, length, c.getShapeParameter());
+                    break;
+                case POWER:
+                    r = foreRadius + Transition.Shape.POWER.getRadius(x, aftRadius - foreRadius, length, c.getShapeParameter());
+                    break;
+                case PARABOLIC:
+                    r = foreRadius + Transition.Shape.PARABOLIC.getRadius(x, aftRadius - foreRadius, length, c.getShapeParameter());
+                    break;
+                case HAACK:
+                    r = foreRadius + Transition.Shape.HAACK.getRadius(x, aftRadius - foreRadius, length, c.getShapeParameter());
+                    break;
+            }
+
+            // 生成 3D 旋转点
+            int radialPoints = 36;
+            for (int j = 0; j < radialPoints; j++) {
+                double angle = 2 * Math.PI * j / radialPoints;
+                double y = r * Math.cos(angle);
+                double z = r * Math.sin(angle);
+                points.add(new double[]{x, y, z});
+            }
+            endX = x;
+
+        }
+        savePointsToFile(points);
+        return endX;
+    }
+
+
+    public static void savePointsToFile(List<double[]> points) {
+        String filePath = "E:/rocket.txt";
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
+            for (double[] point : points) {
+                writer.write(String.format("(%.10f, %.10f, %.10f)", point[0], point[1], point[2]));
+                writer.newLine();
+            }
+            System.out.println("点数据已成功保存到 " + filePath);
+        } catch (IOException e) {
+            System.err.println("写入文件时发生错误: " + e.getMessage());
+        }
+    }
+
+
 
 }
