@@ -137,15 +137,20 @@ public class SwingStartup {
         scheduler.scheduleAtFixedRate(() -> {
             try {
                 System.out.println("json....");
-                // serializeObjectToJsonFile(OpenRocketDocumentFactory.mydoc.getRocket().getSelectedConfiguration().getActiveInstances(), "E:/object.json");
+                serializeObjectToJsonFile(OpenRocketDocumentFactory.mydoc.getRocket().getSelectedConfiguration().getActiveInstances(), "E:/object.json");
                 //序列化密集点
                 File file = new File("E:/rocket.txt");
                 File file2 = new File("E://finset.txt");
+                File file3 = new File("E://rocket2D.txt");
                 if (file.exists()) {
                     file.delete();
                 }
                 if (file2.exists()) {
-                    file.delete();
+                    file2.delete();
+                }
+                if (file3.exists()) {
+                    file3.delete();
+                    System.out.println("文件3删除");
                 }
                 List<RocketComponent> allChildren = OpenRocketDocumentFactory.mydoc.getRocket().getAllChildren();
                 //待密集组件list
@@ -156,16 +161,18 @@ public class SwingStartup {
                     }
                 }
                 double beginX = 0;
+                // 圆周旋转点的个数
+                int rho_point = 180;
                 for (RocketComponent c : components) {
                     if (c instanceof BodyTube) {
-                        beginX = bodyTube3D(c.getLength(), ((BodyTube) c).getOuterRadius(), 50, 100, beginX);
+                        beginX = bodyTube3D(c.getLength(), ((BodyTube) c).getOuterRadius(), rho_point, 100, beginX);
                     }
                     if (c instanceof NoseCone) {
-                        double endX = noseCone3D((Transition) c, ((Transition) c).getShapeType(), c.getLength(), ((NoseCone) c).getBaseRadius(), 100, beginX);
+                        double endX = noseCone3D(rho_point, (Transition) c, ((Transition) c).getShapeType(), c.getLength(), ((NoseCone) c).getBaseRadius(), 100, beginX);
                         beginX = endX;
                     }
                     if (c instanceof Transition && !(c instanceof NoseCone)) {
-                        double endX = transition3D((Transition) c, ((Transition) c).getShapeType(), c.getLength(), ((Transition) c).getForeRadius(), ((Transition) c).getAftRadius(), 100, beginX);
+                        double endX = transition3D(rho_point, (Transition) c, ((Transition) c).getShapeType(), c.getLength(), ((Transition) c).getForeRadius(), ((Transition) c).getAftRadius(), 100, beginX);
                         beginX = endX;
                     }
                     if (c instanceof FinSet) {
@@ -180,14 +187,12 @@ public class SwingStartup {
                             throw new RuntimeException(e);
                         }
                 }
-
             }
-
 
         } catch(Exception e){
             e.printStackTrace();
         }
-    },0,10,TimeUnit.SECONDS);
+    },0,15,TimeUnit.SECONDS);
 }
 
 
@@ -631,6 +636,7 @@ public class SwingStartup {
     public static double bodyTube3D(double length, double outerRadius, int numPointsCircumference, int numPointsLength, double totalLen) {
         double endX = 0;
         List<double[]> points = new ArrayList<>();
+        List<double[]> points2D = new ArrayList<>();
 
         for (int i = 0; i <= numPointsLength; i++) {
             double x = i * (length / numPointsLength) + totalLen;
@@ -642,13 +648,17 @@ public class SwingStartup {
                 points.add(new double[]{x, y, z});
                 endX = x;
             }
+            // 生成2D旋转点
+            points2D.add(new double[]{x, outerRadius});
         }
         savePointsToFile(points);
+        save2DPointsToFile(points2D);
         return endX;
     }
 
-    public static double noseCone3D(Transition c, Transition.Shape type, double length, double radius, int numPoints, double beginX) {
+    public static double noseCone3D(int numPointsCircumference, Transition c, Transition.Shape type, double length, double radius, int numPoints, double beginX) {
         List<double[]> points = new ArrayList<>();
+        List<double[]> points2D = new ArrayList<>();
         double endX = 0;
         for (int i = 0; i < numPoints; i++) {
             double x = (double) i / (numPoints - 1) * length + beginX;
@@ -676,22 +686,27 @@ public class SwingStartup {
             }
 
             // 生成3D点 (绕Z轴旋转得到完整3D模型)
-            int radialPoints = 36; // 角度分割数量
+            int radialPoints = numPointsCircumference; // 角度分割数量
             for (int j = 0; j < radialPoints; j++) {
                 double angle = 2 * Math.PI * j / radialPoints;
                 double y = r * Math.cos(angle);
                 double z = r * Math.sin(angle);
                 points.add(new double[]{x, y, z});
             }
+            // 生成2D旋转点
+            points2D.add(new double[]{x, r});
             endX = x;
         }
         savePointsToFile(points);
+        save2DPointsToFile(points2D);
         return endX;
 
     }
 
-    public static double transition3D(Transition c, Transition.Shape type, double length, double foreRadius, double aftRadius, int numPoints, double beginX) {
+    public static double transition3D(int numPointsCircumference,Transition c, Transition.Shape type, double length, double foreRadius, double aftRadius, int numPoints, double beginX) {
         List<double[]> points = new ArrayList<>();
+        List<double[]> points2D = new ArrayList<>();
+
         double endX = 0.0;
         for (int i = 0; i < numPoints; i++) {
             double x = (double) i / (numPoints - 1) * length + beginX;
@@ -719,7 +734,7 @@ public class SwingStartup {
             }
 
             // 生成 3D 旋转点
-            int radialPoints = 36;
+            int radialPoints = numPointsCircumference;
             for (int j = 0; j < radialPoints; j++) {
                 double angle = 2 * Math.PI * j / radialPoints;
                 double y = r * Math.cos(angle);
@@ -727,9 +742,12 @@ public class SwingStartup {
                 points.add(new double[]{x, y, z});
             }
             endX = x;
-
+            // 生成2D旋转点
+            points2D.add(new double[]{x, r});
         }
         savePointsToFile(points);
+        save2DPointsToFile(points2D);
+
         return endX;
     }
 
@@ -738,7 +756,20 @@ public class SwingStartup {
         String filePath = "E:/rocket.txt";
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
             for (double[] point : points) {
-                writer.write(String.format("(%.10f, %.10f, %.10f)", point[0], point[1], point[2]));
+                writer.write(String.format("%.10f\t%.10f\t%.10f", point[0], point[1], point[2]));
+                writer.newLine();
+            }
+            System.out.println("点数据已成功保存到 " + filePath);
+        } catch (IOException e) {
+            System.err.println("写入文件时发生错误: " + e.getMessage());
+        }
+    }
+
+    public static void save2DPointsToFile(List<double[]> points) {
+        String filePath = "E:/rocket2D.txt";
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
+            for (double[] point : points) {
+                writer.write(String.format("%.10f\t%.10f", point[0], point[1]));
                 writer.newLine();
             }
             System.out.println("点数据已成功保存到 " + filePath);
