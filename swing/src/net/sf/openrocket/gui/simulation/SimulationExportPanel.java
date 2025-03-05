@@ -36,7 +36,9 @@ import net.sf.openrocket.startup.OpenRocket;
 import net.sf.openrocket.unit.Unit;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
+import net.sf.openrocket.utils.eduUTIL;
 import net.sf.openrocket.utils.educoder.*;
+import oshi.util.EdidUtil;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -179,6 +181,7 @@ public class SimulationExportPanel extends JPanel {
 					leftTextArea.setWrapStyleWord(true); // 仅在单词边界处换行
 					leftTextArea.setFont(new Font("Monospaced", Font.PLAIN, 14)); // 设置字体
 					leftTextArea.setText(HullCNRequest.Server_cn.toString());
+					eduUTIL.sortByTimestamp(HullCNRequest.Server_cn);
 					JScrollPane leftScrollPane = new JScrollPane(leftTextArea);
 					mainPanel.add(leftScrollPane);
 
@@ -228,7 +231,7 @@ public class SimulationExportPanel extends JPanel {
 		edu_calculateCN_button = new SelectColorButton(trans.get("SimExpPan.but.Wing_calculateCN"));
 		edu_calculateCN_button.addActionListener(e -> {
 			// 创建一个模态对话框，父窗口为当前组件的顶层窗口
-			JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "总体弹体法向力系数", Dialog.ModalityType.MODELESS);
+			JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "", Dialog.ModalityType.MODELESS);
 
 			// 设置对话框的主布局为 BorderLayout
 			dialog.setLayout(new BorderLayout());
@@ -592,7 +595,7 @@ public class SimulationExportPanel extends JPanel {
 			JTextArea leftTextArea = new JTextArea();
 			leftTextArea.setLineWrap(true); // 自动换行
 			leftTextArea.setWrapStyleWord(true); // 仅在单词边界处换行
-			leftTextArea.setFont(new Font("Monospaced", Font.PLAIN, 14)); // 设置字体
+			leftTextArea.setFont(new Font("Monospaced", Font.PLAIN, 17)); // 设置字体
 			leftTextArea.setText(TotalPressureCDRequest.server_cn.toString());
 			JScrollPane leftScrollPane = new JScrollPane(leftTextArea);
 			mainPanel.add(leftScrollPane);
@@ -601,7 +604,7 @@ public class SimulationExportPanel extends JPanel {
 			net.sf.openrocket.util.ArrayList server = removeTimestamp(TotalPressureCDRequest.server_cn);
 
 			sortByTimestamp(TotalPressureCDRequest.server_cn);
-			sortByTimestamp(TotalPressureCDRequest.client_cn);
+//			sortByTimestamp(TotalPressureCDRequest.client_cn);
 
 			// 右边的小文本框
 			JTextArea rightTextArea = new JTextArea();

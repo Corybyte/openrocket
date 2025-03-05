@@ -12,28 +12,8 @@ import javax.swing.ImageIcon;
 import net.sf.openrocket.gui.util.GUIUtil;
 import net.sf.openrocket.gui.util.UITheme;
 import net.sf.openrocket.l10n.Translator;
-import net.sf.openrocket.rocketcomponent.AxialStage;
-import net.sf.openrocket.rocketcomponent.BodyTube;
-import net.sf.openrocket.rocketcomponent.Bulkhead;
-import net.sf.openrocket.rocketcomponent.CenteringRing;
-import net.sf.openrocket.rocketcomponent.EllipticalFinSet;
-import net.sf.openrocket.rocketcomponent.EngineBlock;
-import net.sf.openrocket.rocketcomponent.FreeformFinSet;
-import net.sf.openrocket.rocketcomponent.InnerTube;
-import net.sf.openrocket.rocketcomponent.LaunchLug;
-import net.sf.openrocket.rocketcomponent.MassComponent;
+import net.sf.openrocket.rocketcomponent.*;
 import net.sf.openrocket.rocketcomponent.MassComponent.MassComponentType;
-import net.sf.openrocket.rocketcomponent.NoseCone;
-import net.sf.openrocket.rocketcomponent.Parachute;
-import net.sf.openrocket.rocketcomponent.ParallelStage;
-import net.sf.openrocket.rocketcomponent.PodSet;
-import net.sf.openrocket.rocketcomponent.RailButton;
-import net.sf.openrocket.rocketcomponent.ShockCord;
-import net.sf.openrocket.rocketcomponent.Streamer;
-import net.sf.openrocket.rocketcomponent.Transition;
-import net.sf.openrocket.rocketcomponent.TrapezoidFinSet;
-import net.sf.openrocket.rocketcomponent.TubeCoupler;
-import net.sf.openrocket.rocketcomponent.TubeFinSet;
 import net.sf.openrocket.startup.Application;
 
 public class ComponentIcons {
@@ -41,10 +21,11 @@ public class ComponentIcons {
 
 	private static final String ICON_DIRECTORY = "pix/componenticons/";
 	private static final String SMALL_SUFFIX = "-small.png";
-	private static final String LARGE_SUFFIX = "-large.png";
+	public static  String LARGE_SUFFIX = "-large.png";
 
 	// Component image file keys
 	private static String noseCone;
+	private static String glider;
 	private static String bodyTube;
 	private static String transition;
 	private static String trapezoidFinSet;
@@ -62,7 +43,7 @@ public class ComponentIcons {
 	private static String streamer;
 	private static String shockCord;
 	private static String mass;
-	private static String stage;
+	public static String stage;
 	private static String boosters;
 	private static String pods;
 
@@ -83,6 +64,8 @@ public class ComponentIcons {
 
 		// // Nose cone
 		load(noseCone, trans.get("ComponentIcons.Nosecone"), NoseCone.class);
+		// Glider
+		load(glider,"123", Glider.class);
 		// // Body tube
 		load(bodyTube, trans.get("ComponentIcons.Bodytube"), BodyTube.class);
 		//// Transition
@@ -221,6 +204,7 @@ public class ComponentIcons {
 	 * @return the icon, or <code>null</code> if none available.
 	 */
 	public static Icon getLargeIcon(Class<?> c) {
+		System.out.println(c);
 		return LARGE_ICONS.get(c);
 	}
 

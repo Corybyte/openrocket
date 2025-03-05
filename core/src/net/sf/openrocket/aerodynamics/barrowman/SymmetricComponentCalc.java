@@ -5,12 +5,14 @@ import static net.sf.openrocket.util.MathUtil.pow2;
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.FlightConditions;
+import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.BodyTube;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
 import net.sf.openrocket.rocketcomponent.SymmetricComponent;
 import net.sf.openrocket.rocketcomponent.Transition;
+import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.startup.OpenRocket;
 import net.sf.openrocket.util.*;
 
@@ -173,6 +175,8 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 		hullCNRequest.result_cn=forces.getCNa() * conditions.getAOA();
 		hullCNRequest.result_cna=cp.weight;
 		hullCNRequest.timestap=System.nanoTime();
+		double time =SimulationStatus.time;
+		System.out.println(SimulationStatus.time);
 
 		if (forces.getCNa() * conditions.getAOA() != 0) {
 			if (OpenRocket.flag.equals("calculateTubeFinSetHullCG")||OpenRocket.flag.equals("")) {
@@ -184,7 +188,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 							hullCNRequest.Client_cn.add(response.body().getResult());
 						}
 						synchronized (hullCNRequest.Server_cn) {
-							hullCNRequest.Server_cn.add(forces.getCNa() * conditions.getAOA());
+							hullCNRequest.Server_cn.add("[" + time + "]" + forces.getCNa() * conditions.getAOA());
 						}
 					}
 

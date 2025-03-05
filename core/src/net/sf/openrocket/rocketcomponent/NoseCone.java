@@ -34,7 +34,7 @@ public class NoseCone extends Transition implements InsideColorComponent {
 		super.setLength(length);
 		super.setClipped(false);
 		resetForeRadius();
-		
+
 		super.setAftRadiusAutomatic(false);
 		super.setAftRadius(radius);
 

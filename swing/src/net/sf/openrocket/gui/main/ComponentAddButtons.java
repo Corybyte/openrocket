@@ -1,10 +1,7 @@
 package net.sf.openrocket.gui.main;
 
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.Font;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -12,16 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JViewport;
-import javax.swing.Scrollable;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -31,6 +19,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
+import net.sf.openrocket.gui.configdialog.CommonStrings;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.*;
 import net.sf.openrocket.util.Coordinate;
@@ -119,10 +108,8 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
         addButtonGroup(row,
                 //// Nose cone
                 new BodyComponentButton(NoseCone.class, trans.get("compaddbuttons.Nosecone")),
-
                 //// Glider
                 new BodyComponentButton(Glider.class, trans.get("compaddbuttons.Glider")),
-
                 //// Body tube
                 new BodyComponentButton(BodyTube.class, trans.get("compaddbuttons.Bodytube")),
                 //// Transition
@@ -306,16 +293,17 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
         public ComponentButton(String text, Icon enabled, Icon disabled) {
             super(text, enabled);
 
+
             setVerticalTextPosition(SwingConstants.BOTTOM);        // Put the text below the icon
             setHorizontalTextPosition(SwingConstants.CENTER);        // Center the text horizontally
             //setIconTextGap(0); // Optional; sets the gap between the icon and the text
 
             // set the disabled icon if it is not null
             if (disabled != null) {
-                setDisabledIcon(disabled);
+//                setDisabledIcon(enabled);
             }
 
-            setHorizontalAlignment(SwingConstants.CENTER);            // Center the button in its parent component
+//            setHorizontalAlignment(SwingConstants.CENTER);            // Center the button in its parent component
 
             // if you have multiline text, you could use html to format it
             if (text != null && text.contains("\n")) {
@@ -339,6 +327,8 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
          */
         public ComponentButton(Class<? extends RocketComponent> c, String text) {
             this(text, ComponentIcons.getLargeIcon(c), ComponentIcons.getLargeDisabledIcon(c));
+
+
 
             if (c == null)
                 return;

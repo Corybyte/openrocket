@@ -238,6 +238,7 @@ public class DesignPanel extends JSplitPane {
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scroll.setViewportView(new ComponentAddButtons(document, tree.getSelectionModel(),
                 scroll.getViewport()));
+
         scroll.setBorder(null);
         scroll.setViewportBorder(null);
 
