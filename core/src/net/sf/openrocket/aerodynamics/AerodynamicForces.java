@@ -2,12 +2,14 @@ package net.sf.openrocket.aerodynamics;
 
 import net.sf.openrocket.rocketcomponent.Rocket;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.startup.OpenRocket;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.MathUtil;
 import net.sf.openrocket.util.Monitorable;
 import net.sf.openrocket.utils.educoder.Result;
+import net.sf.openrocket.utils.educoder.TotalPressureCDRequest;
 import net.sf.openrocket.utils.educoder.componentForcesRequest;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -468,16 +470,17 @@ public class AerodynamicForces implements Cloneable, Monitorable {
             System.out.println(this.CN);
             System.out.println(other.getCN());
         }
-        if (OpenRocket.flag.equals("calculatecomponentNonAxialForces")||OpenRocket.flag.equals("")) {
 
+        if (OpenRocket.flag.equals("calculatecomponentNonAxialForces")||OpenRocket.flag.equals("")) {
+            double time = SimulationStatus.time;
             OpenRocket.eduCoderService.calculateComponentNonAxialForces(request).enqueue(new Callback<Result>() {
                 @Override
                 public void onResponse(Call<Result> call, Response<Result> response) {
                     synchronized (this) {
-                        request.Client_CN.add(response.body().getResult());
-                        request.Server_CN.add(request.cn);
+                        request.Client_CN.add("[" + time + "]"+response.body().getResult());
+                        request.Server_CN.add("[" + time + "]"+request.cn);
                         if (response.body().getResult() != String.valueOf(request.cn)) {
-                            System.out.println(request);
+                            System.out.println(response.body().getResult());
                         }
                     }
                 }

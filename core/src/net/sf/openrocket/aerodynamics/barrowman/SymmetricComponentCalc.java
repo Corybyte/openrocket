@@ -5,7 +5,6 @@ import static net.sf.openrocket.util.MathUtil.pow2;
 import net.sf.openrocket.aerodynamics.AerodynamicForces;
 import net.sf.openrocket.aerodynamics.BarrowmanCalculator;
 import net.sf.openrocket.aerodynamics.FlightConditions;
-import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.BodyTube;
@@ -175,20 +174,22 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 		hullCNRequest.result_cn=forces.getCNa() * conditions.getAOA();
 		hullCNRequest.result_cna=cp.weight;
 		hullCNRequest.timestap=System.nanoTime();
-		double time =SimulationStatus.time;
-		System.out.println(SimulationStatus.time);
 
 		if (forces.getCNa() * conditions.getAOA() != 0) {
+			double time = SimulationStatus.time;
+
+			OpenRocket.flag="calculateTubeFinSetHullCG";
+
 			if (OpenRocket.flag.equals("calculateTubeFinSetHullCG")||OpenRocket.flag.equals("")) {
 				OpenRocket.eduCoderService.calculateCN(hullCNRequest).enqueue(new Callback<Result>() {
 
 					@Override
 					public void onResponse(Call<Result> call, Response<Result> response) {
 						synchronized (hullCNRequest.Client_cn) {
-							hullCNRequest.Client_cn.add(response.body().getResult());
+							hullCNRequest.Client_cn.add("[" + time + "]"+response.body().getResult());
 						}
 						synchronized (hullCNRequest.Server_cn) {
-							hullCNRequest.Server_cn.add("[" + time + "]" + forces.getCNa() * conditions.getAOA());
+							hullCNRequest.Server_cn.add("[" + time + "]"+forces.getCNa() * conditions.getAOA());
 						}
 					}
 
@@ -276,7 +277,8 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 		}
 		// 去除自检
 		if (conditions.getAOA()!=0&&conditions.getTheta()!=0){
-			BodyPressureCDRequest.server_cn.add(interpolator.getValue(conditions.getMach()) * frontalArea / conditions.getRefArea());
+			double time= SimulationStatus.time;
+			BodyPressureCDRequest.server_cn.add("[" + time + "]"+interpolator.getValue(conditions.getMach()) * frontalArea / conditions.getRefArea());
 
 			request.setInterpolatorValue(interpolator.getValue(conditions.getMach()));
 			//发送请求
@@ -289,7 +291,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 
 						synchronized (BodyPressureCDRequest.client_cn) {
 							Object result = response.body().getResult();
-							BodyPressureCDRequest.client_cn.add(result);
+							BodyPressureCDRequest.client_cn.add("[" + time + "]"+result);
 						}
 
 					}

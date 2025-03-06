@@ -390,44 +390,45 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
                         TotalMomentRequest.cpLists, TotalMomentRequest.flags, conditions.getAOA(), conditions.getRefLength(), TotalMomentRequest.randomDouble,
                         TotalMomentRequest.PitchDampingMoment, TotalMomentRequest.YawDampingMoment, store.rocketMass.getCM(), TotalMomentRequest.tubeFInsetFlags, TotalMomentRequest.cRollDamps, TotalMomentRequest.cRollForces);
 
-                double r1 = store.forces.getCm()-store.forces.getCN()*store.rocketMass.getCM().x/refLength;
-                double r2= store.forces.getCyaw()-store.forces.getCside()*store.rocketMass.getCM().x/refLength;
-                double r3=store.forces.getCroll();
-                TotalMomentRequest.Server_cn1.add(r1);
-                TotalMomentRequest.Server_cn2.add(r2);
-                TotalMomentRequest.Server_cn3.add(r3);
-                if (OpenRocket.flag.equals("totalMoment")||OpenRocket.flag.equals("")) {
-                    OpenRocket.eduCoderService.calculateTotalMoment(totalMomentRequest).enqueue(new Callback<Result>() {
-                        @Override
-                        public void onResponse(Call<Result> call, Response<Result> response) {
-                            ArrayList list = (ArrayList) response.body().getResult();
-                            if (list == null) {
-                                list = new ArrayList();
-                                list.add(0);
-                                list.add(0);
-                                list.add(0);
-                            }
-                            //ignore
-                            synchronized (TotalMomentRequest.Client_cn1) {
-                                TotalMomentRequest.Client_cn1.add(list.get(0));
+                double r1 = store.forces.getCm() - store.forces.getCN() * store.rocketMass.getCM().x / refLength;
+                double r2 = store.forces.getCyaw() - store.forces.getCside() * store.rocketMass.getCM().x / refLength;
+                double r3 = store.forces.getCroll();
+                synchronized (RK4SimulationStepper.class) {
+                    double time = SimulationStatus.time;
+                    TotalMomentRequest.Server_cn1.add("[" + time + "]" + r1);
+                    TotalMomentRequest.Server_cn2.add("[" + time + "]" + r2);
+                    TotalMomentRequest.Server_cn3.add("[" + time + "]" + r3);
+                    if (OpenRocket.flag.equals("totalMoment") || OpenRocket.flag.equals("")) {
+                        OpenRocket.eduCoderService.calculateTotalMoment(totalMomentRequest).enqueue(new Callback<Result>() {
+                            @Override
+                            public void onResponse(Call<Result> call, Response<Result> response) {
+                                ArrayList list = (ArrayList) response.body().getResult();
+                                if (list == null) {
+                                    list = new ArrayList();
+                                    list.add(0);
+                                    list.add(0);
+                                    list.add(0);
+                                }
+                                //ignore
+                                synchronized (TotalMomentRequest.Client_cn1) {
+                                    TotalMomentRequest.Client_cn1.add("[" + time + "]" + list.get(0));
+                                }
+                                synchronized (TotalMomentRequest.Client_cn2) {
+                                    TotalMomentRequest.Client_cn2.add("[" + time + "]" + list.get(1));
+                                }
+                                synchronized (TotalMomentRequest.Client_cn3) {
+                                    TotalMomentRequest.Client_cn3.add("[" + time + "]" + list.get(2));
+
+                                }
 
                             }
-                            synchronized (TotalMomentRequest.Client_cn2) {
-                                TotalMomentRequest.Client_cn2.add(list.get(1));
 
+                            @Override
+                            public void onFailure(Call<Result> call, Throwable throwable) {
+                                //ignore
                             }
-                            synchronized (TotalMomentRequest.Client_cn3) {
-                                TotalMomentRequest.Client_cn3.add(list.get(2));
-
-                            }
-
-                        }
-
-                        @Override
-                        public void onFailure(Call<Result> call, Throwable throwable) {
-                            //ignore
-                        }
-                    });
+                        });
+                    }
                 }
                 TotalMomentRequest.componentInstance.clear();
                 TotalMomentRequest.cnaLists.clear();
@@ -442,7 +443,6 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
             }
             // Shift moments to CG
             double Cm = store.forces.getCm() - store.forces.getCN() * store.rocketMass.getCM().x / refLength;
-
             double Cyaw = store.forces.getCyaw() - store.forces.getCside() * store.rocketMass.getCM().x / refLength;
             double croll = store.forces.getCroll();
             // 计算 cm cyaw croll
@@ -469,23 +469,24 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 
         }
         if (store.flightConditions.getAOA() != 0 && store.flightConditions.getTheta() != 0) {
+            double time =SimulationStatus.time;
 
 
             StabilityRequest stabilityRequest = new StabilityRequest(store.forces.getCP().x, store.rocketMass.getCM().x, refArea, System.nanoTime());
-            StabilityRequest.server_cn.add((store.forces.getCP().x - store.rocketMass.getCM().x) / refArea);
+            StabilityRequest.server_cn.add("[" + time + "]"+(store.forces.getCP().x - store.rocketMass.getCM().x) / refArea);
 
             Coordinate s1 = store.linearAcceleration;
             Coordinate s2 = store.angularAcceleration;
-            AccelerationRequest.server_cn.add(s1);
-            AccelerationRequest.server_cn2.add(s2);
+            AccelerationRequest.server_cn.add("[" + time + "]"+s1);
+            AccelerationRequest.server_cn2.add("[" + time + "]"+s2);
             //flag
-            if (OpenRocket.flag.equals( "calculateStability")||OpenRocket.flag.equals("")){
+            if (OpenRocket.flag.equals("calculateStability") || OpenRocket.flag.equals("")) {
                 OpenRocket.eduCoderService.calculateStability(stabilityRequest).enqueue(new Callback<Result>() {
                     @Override
                     public void onResponse(Call<Result> call, Response<Result> response) {
                         //ignore
                         synchronized (StabilityRequest.client_cn) {
-                            StabilityRequest.client_cn.add(response.body().getResult());
+                            StabilityRequest.client_cn.add("[" + time + "]"+response.body().getResult());
                         }
 
                     }
@@ -498,7 +499,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
             }
 
 
-            if (OpenRocket.flag.equals("calculateAcceleration")||OpenRocket.flag.equals("")) {
+            if (OpenRocket.flag.equals("calculateAcceleration") || OpenRocket.flag.equals("")) {
                 //发送请求
                 OpenRocket.eduCoderService.Acceleration(request).enqueue(new Callback<Result>() {
 
@@ -510,13 +511,13 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
                                 Object result = response.body().getResult();
                                 //错误信息
                                 if (result instanceof String) {
-                                    AccelerationRequest.client_cn.add(result);//正确答案
+                                    AccelerationRequest.client_cn.add(result);
                                 } else {
                                     ArrayList result2 = (ArrayList) result;
                                     ArrayList<Double> o1 = (ArrayList<Double>) result2.get(0);
                                     ArrayList<Double> o2 = (ArrayList<Double>) result2.get(1);
-                                    AccelerationRequest.client_cn.add(new Coordinate(o1.get(0), o1.get(1), o1.get(2)));
-                                    AccelerationRequest.client_cn2.add(new Coordinate(o2.get(0), o2.get(1), o2.get(2)));
+                                    AccelerationRequest.client_cn.add("[" + time + "]"+new Coordinate(o1.get(0), o1.get(1), o1.get(2)));
+                                    AccelerationRequest.client_cn2.add("[" + time + "]"+new Coordinate(o2.get(0), o2.get(1), o2.get(2)));
 
                                 }
                             }

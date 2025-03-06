@@ -45,6 +45,7 @@ import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.startup.OpenRocket;
 import net.sf.openrocket.startup.Preferences;
 import net.sf.openrocket.unit.Unit;
+import net.sf.openrocket.util.ArrayList;
 import net.sf.openrocket.util.Utils;
 import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.utils.educoder.*;
@@ -52,6 +53,9 @@ import org.jetbrains.annotations.NotNull;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static net.sf.openrocket.gui.simulation.SimulationExportPanel.removeTimestamp;
+import static net.sf.openrocket.gui.simulation.SimulationExportPanel.sortByTimestamp;
 
 /**
  * Panel that displays the simulation plot options to the user.
@@ -498,7 +502,7 @@ public class SimulationPlotPanel extends JPanel {
             leftTextArea.setText(TotalBasalResistanceRequest.server_cn.toString());
             JScrollPane leftScrollPane = new JScrollPane(leftTextArea);
             mainPanel.add(leftScrollPane);
-
+            sortByTimestamp(TotalPressureCDRequest.client_cn);
             // 右边的小文本框
             JTextArea rightTextArea = new JTextArea();
             rightTextArea.setLineWrap(true); // 自动换行
@@ -529,7 +533,10 @@ public class SimulationPlotPanel extends JPanel {
             dialog.setSize(800, 400); // 设置窗口宽度更大，适应两个文本框
             dialog.setLocationRelativeTo(this); // 设置相对于父窗口居中显示
             dialog.setVisible(true); // 显示对话框
-            DataRequest request = new DataRequest(TotalBasalResistanceRequest.client_cn,TotalBasalResistanceRequest.server_cn);
+            ArrayList client_cn = removeTimestamp(TotalBasalResistanceRequest.client_cn);
+            ArrayList server_cn = removeTimestamp(TotalBasalResistanceRequest.server_cn);
+
+            DataRequest request = new DataRequest(client_cn,server_cn);
             checkButton.addActionListener(e1 -> OpenRocket.eduCoderService.checkJSON(request).enqueue(new Callback<Result>() {
                 @Override
                 public void onResponse(Call<Result> call, Response<Result> response) {
@@ -562,7 +569,7 @@ public class SimulationPlotPanel extends JPanel {
             leftTextArea.setText(BodyPressureCDRequest.server_cn.toString());
             JScrollPane leftScrollPane = new JScrollPane(leftTextArea);
             mainPanel.add(leftScrollPane);
-
+            sortByTimestamp(BodyPressureCDRequest.client_cn);
             // 右边的小文本框
             JTextArea rightTextArea = new JTextArea();
             rightTextArea.setLineWrap(true); // 自动换行
@@ -593,7 +600,9 @@ public class SimulationPlotPanel extends JPanel {
             dialog.setSize(800, 400); // 设置窗口宽度更大，适应两个文本框
             dialog.setLocationRelativeTo(this); // 设置相对于父窗口居中显示
             dialog.setVisible(true); // 显示对话框
-            DataRequest request = new DataRequest(BodyPressureCDRequest.client_cn,BodyPressureCDRequest.server_cn);
+            ArrayList client_cn = removeTimestamp(BodyPressureCDRequest.client_cn);
+            ArrayList server_cn = removeTimestamp(BodyPressureCDRequest.server_cn);
+            DataRequest request = new DataRequest(client_cn,server_cn);
             //点击测评更新值
             checkButton.addActionListener(e1 -> {
                 OpenRocket.eduCoderService.checkJSON(request).enqueue(new Callback<Result>() {
@@ -629,6 +638,7 @@ public class SimulationPlotPanel extends JPanel {
             leftTextArea.setText(FinsetPressureCDRequest.server_cn.toString());
             JScrollPane leftScrollPane = new JScrollPane(leftTextArea);
             mainPanel.add(leftScrollPane);
+            sortByTimestamp(FinsetPressureCDRequest.client_cn);
 
             // 右边的小文本框
             JTextArea rightTextArea = new JTextArea();
@@ -660,7 +670,9 @@ public class SimulationPlotPanel extends JPanel {
             dialog.setSize(800, 400); // 设置窗口宽度更大，适应两个文本框
             dialog.setLocationRelativeTo(this); // 设置相对于父窗口居中显示
             dialog.setVisible(true); // 显示对话框
-            DataRequest request = new DataRequest(FinsetPressureCDRequest.client_cn,FinsetPressureCDRequest.server_cn);
+            ArrayList client_cn = removeTimestamp(FinsetPressureCDRequest.client_cn);
+            ArrayList server_cn = removeTimestamp(FinsetPressureCDRequest.server_cn);
+            DataRequest request = new DataRequest(client_cn,server_cn);
             System.out.println(FinsetPressureCDRequest.client_cn);
             System.out.println(FinsetPressureCDRequest.server_cn);
             System.out.println(FinsetPressureCDRequest.server_cn.size());
@@ -702,6 +714,7 @@ public class SimulationPlotPanel extends JPanel {
             JScrollPane leftScrollPane = new JScrollPane(leftTextArea);
             mainPanel.add(leftScrollPane);
 
+            sortByTimestamp(AxialCDRequest.client_cn);
             // 右边的小文本框
             JTextArea rightTextArea = new JTextArea();
             rightTextArea.setLineWrap(true); // 自动换行
@@ -732,7 +745,9 @@ public class SimulationPlotPanel extends JPanel {
             dialog.setSize(800, 400); // 设置窗口宽度更大，适应两个文本框
             dialog.setLocationRelativeTo(this); // 设置相对于父窗口居中显示
             dialog.setVisible(true); // 显示对话框
-            DataRequest request = new DataRequest(AxialCDRequest.client_cn,AxialCDRequest.server_cn);
+            ArrayList client_cn = removeTimestamp(AxialCDRequest.client_cn);
+            ArrayList server_cn = removeTimestamp(AxialCDRequest.server_cn);
+            DataRequest request = new DataRequest(client_cn,server_cn);
 
             //点击测评更新值
             newButton.addActionListener(e1 -> {
@@ -768,7 +783,7 @@ public class SimulationPlotPanel extends JPanel {
             leftTextArea.setText(FrictionCDRequest.server_cn.toString());
             JScrollPane leftScrollPane = new JScrollPane(leftTextArea);
             mainPanel.add(leftScrollPane);
-
+            sortByTimestamp(FrictionCDRequest.client_cn);
             // 右边的小文本框
             JTextArea rightTextArea = new JTextArea();
             rightTextArea.setLineWrap(true); // 自动换行
@@ -799,12 +814,11 @@ public class SimulationPlotPanel extends JPanel {
             dialog.setSize(800, 400); // 设置窗口宽度更大，适应两个文本框
             dialog.setLocationRelativeTo(this); // 设置相对于父窗口居中显示
             dialog.setVisible(true); // 显示对话框
-            DataRequest request = new DataRequest(FrictionCDRequest.client_cn,FrictionCDRequest.server_cn);
-            System.out.println(FrictionCDRequest.client_cn);
-            System.out.println(FrictionCDRequest.server_cn);
-            System.out.println(FrictionCDRequest.server_cn.size());
-            System.out.println(FrictionCDRequest.client_cn.size());
 
+            net.sf.openrocket.util.ArrayList client_cn = removeTimestamp(FrictionCDRequest.client_cn);
+            net.sf.openrocket.util.ArrayList server_cn = removeTimestamp(FrictionCDRequest.server_cn);
+
+            DataRequest request = new DataRequest(client_cn,server_cn);
             //点击测评更新值
             newButton.addActionListener(e1 -> {
                 OpenRocket.eduCoderService.checkJSON(request).enqueue(new Callback<Result>() {

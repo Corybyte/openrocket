@@ -11,6 +11,7 @@ import net.sf.openrocket.logging.Warning;
 import net.sf.openrocket.logging.WarningSet;
 import net.sf.openrocket.rocketcomponent.FinSet;
 import net.sf.openrocket.rocketcomponent.RocketComponent;
+import net.sf.openrocket.simulation.SimulationStatus;
 import net.sf.openrocket.startup.OpenRocket;
 import net.sf.openrocket.util.BugException;
 import net.sf.openrocket.util.Coordinate;
@@ -257,15 +258,17 @@ public class FinSetCalc extends RocketComponentCalc {
 
 		double finalCna = cna;
 		if (OpenRocket.flag.equals("windDemo")||OpenRocket.flag.equals("")) {
+			double time = SimulationStatus.time;
 			OpenRocket.eduCoderService.Wing_calculateCN(request).enqueue(new Callback<Result>() {
 				@Override
 				public void onResponse(Call<Result> call, Response<Result> response) {
+
 					synchronized (request.Client_CN) {
-						request.Client_CN.add(response.body().getResult());
+						request.Client_CN.add("[" + time + "]"+response.body().getResult());
 
 					}
 					synchronized (request.Server_CN) {
-						request.Server_CN.add(finalCna * MathUtil.min(conditions.getAOA(), STALL_ANGLE));
+						request.Server_CN.add("[" + time + "]"+finalCna * MathUtil.min(conditions.getAOA(), STALL_ANGLE));
 					}
 				}
 
@@ -739,6 +742,8 @@ public class FinSetCalc extends RocketComponentCalc {
 		cd *= span * thickness / conditions.getRefArea();
 		// 去除自检
 		if (conditions.getAOA()!=0&&conditions.getTheta()!=0){
+			double time = SimulationStatus.time;
+
 			//添加值
 			FinsetPressureCDRequest request = new FinsetPressureCDRequest();
 			request.setFinArea(finArea);
@@ -749,8 +754,7 @@ public class FinSetCalc extends RocketComponentCalc {
 			request.setThickness(thickness);
 			request.setTimestamp(System.nanoTime());
 			request.setRefArea(conditions.getRefArea());
-			FinsetPressureCDRequest.server_cn.add(cd);
-
+			FinsetPressureCDRequest.server_cn.add("[" + time + "]"+cd);
 			//发送请求
 			if (OpenRocket.flag.equals("calculateFinsetPCD")||OpenRocket.flag.equals("")) {
 				OpenRocket.eduCoderService.calculateFinsetPressureCD(request).enqueue(new Callback<Result>() {
@@ -759,7 +763,7 @@ public class FinSetCalc extends RocketComponentCalc {
 					public void onResponse(Call<Result> call, Response<Result> response) {
 						synchronized (FinsetPressureCDRequest.client_cn) {
 							Object result = response.body().getResult();
-							FinsetPressureCDRequest.client_cn.add(result);
+							FinsetPressureCDRequest.client_cn.add("[" + time + "]"+result);
 						}
 
 

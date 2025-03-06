@@ -629,6 +629,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
             }
         }
         if (conditions.getAOA() != 0 && conditions.getTheta() != 0) {
+            double time=SimulationStatus.time;
             request.setFinish_ordinal(finish_ordinal);
             request.setRoughnessSize(roughnessSize);
             request.setComponentName(componentName);
@@ -643,7 +644,9 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
             request.setAftRadius(aftRadius);
             request.setComponentInstanceCount(componentInstanceCount);
             double re = otherFrictionCD+correction*bodyFrictionCD;
-            FrictionCDRequest.server_cn.add(re);
+            FrictionCDRequest.server_cn.add("[" + time + "]"+re);
+
+
 
             if (OpenRocket.flag.equals("calculateFrictionCD")||OpenRocket.flag.equals("")) {
                 OpenRocket.eduCoderService.calculateFrictionCD(request).enqueue(new Callback<Result>() {
@@ -651,7 +654,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
                     public void onResponse(Call<Result> call, Response<Result> response) {
                         //ignore
                         synchronized (FinsetPressureCDRequest.client_cn) {
-                            FrictionCDRequest.client_cn.add(response.body().getResult());
+                            FrictionCDRequest.client_cn.add("[" + time + "]"+response.body().getResult());
                         }
 
                     }
@@ -1054,6 +1057,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 
         // 去除自检
         if (conditions.getAOA() != 0 && conditions.getTheta() != 0) {
+            double time =SimulationStatus.time;
             request.setForeRadius(foreRadiuss);
             request.setAftRadius(aftRadiuss);
             request.setLength(lengths);
@@ -1063,7 +1067,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
             request.setNextComponents(nextComponents);
             request.setTimestamp(System.nanoTime());
             double t = total;
-            TotalBasalResistanceRequest.server_cn.add(t);
+            TotalBasalResistanceRequest.server_cn.add("[" + time + "]"+t);
 
             if (OpenRocket.flag.equals("calculateCD")||OpenRocket.flag.equals("")) {
                 //发送请求
@@ -1075,7 +1079,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
                             //将返回的计算结果
                             synchronized (TotalBasalResistanceRequest.client_cn) {
                                 //System.out.println(response.body().getResult());
-                                TotalBasalResistanceRequest.client_cn.add(response.body().getResult());
+                                TotalBasalResistanceRequest.client_cn.add("[" + time + "]"+response.body().getResult());
                             }
 
                         }
@@ -1178,17 +1182,18 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 
 
         if (conditions.getAOA() != 0 && conditions.getTheta() != 0) {
+            double time=SimulationStatus.time;
             if (conditions.getAOA() < Math.PI / 2)
-                AxialCDRequest.server_cn.add(mul * cd);
+                AxialCDRequest.server_cn.add("[" + time + "]"+mul * cd);
             else
-                AxialCDRequest.server_cn.add(-mul * cd);
+                AxialCDRequest.server_cn.add("[" + time + "]"+(-mul * cd));
             if (OpenRocket.flag.equals("calculateAxialCD")||OpenRocket.flag.equals("")) {
                 OpenRocket.eduCoderService.calculateAxialCD(request).enqueue(new Callback<Result>() {
                     @Override
                     public void onResponse(Call<Result> call, Response<Result> response) {
                         //ignore
                         synchronized (AxialCDRequest.client_cn) {
-                            AxialCDRequest.client_cn.add(response.body().getResult());
+                            AxialCDRequest.client_cn.add("[" + time + "]"+response.body().getResult());
                         }
                     }
 
