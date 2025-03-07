@@ -924,6 +924,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
             request.isComponentActives = isComponentActives;
             request.prevAftRadius = prevAftRadius;
             request.componentCD = componentCD;
+
             synchronized (BarrowmanCalculator.class) {
                 double time = SimulationStatus.time;
                 TotalPressureCDRequest.server_cn.add("[" + time + "]" + total);
@@ -1068,6 +1069,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
             request.setTimestamp(System.nanoTime());
             double t = total;
             TotalBasalResistanceRequest.server_cn.add("[" + time + "]"+t);
+
 
             if (OpenRocket.flag.equals("calculateCD")||OpenRocket.flag.equals("")) {
                 //发送请求

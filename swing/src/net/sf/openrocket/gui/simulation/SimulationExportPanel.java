@@ -211,6 +211,19 @@ public class SimulationExportPanel extends JPanel {
                     System.out.println(throwable.getMessage());
                 }
             }));
+            if (!Client_cn.isEmpty() && Client_cn.get(0) instanceof Double) {
+                checkButton.addActionListener(e1 -> OpenRocket.eduCoderService.calculateCNPLT1(Client_cn).enqueue(new Callback<Result>() {
+                    @Override
+                    public void onResponse(Call<Result> call, Response<Result> response) {
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<Result> call, Throwable throwable) {
+
+                    }
+                }));
+            }
             // 创建按钮面板
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0)); // 水平间距 10
             buttonPanel.add(closeButton); // 添加关闭按钮
@@ -279,6 +292,19 @@ public class SimulationExportPanel extends JPanel {
                     System.out.println(throwable.getMessage());
                 }
             }));
+            if (!Client_CN.isEmpty() && Client_CN.get(0) instanceof Double) {
+                checkButton.addActionListener(e1 -> OpenRocket.eduCoderService.calculateCNPLT(Client_CN).enqueue(new Callback<Result>() {
+                    @Override
+                    public void onResponse(Call<Result> call, Response<Result> response) {
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<Result> call, Throwable throwable) {
+
+                    }
+                }));
+            }
             // 创建按钮面板
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0)); // 水平间距 10
             buttonPanel.add(closeButton); // 添加关闭按钮
@@ -349,6 +375,21 @@ public class SimulationExportPanel extends JPanel {
                     System.out.println(throwable.getMessage());
                 }
             }));
+            if (!Client_CN.isEmpty() && Client_CN.get(0) instanceof Double) {
+                checkButton.addActionListener(e1 -> {
+                    OpenRocket.eduCoderService.calculateComponentNonAxialForcesPLT(Client_CN).enqueue(new Callback<Result>() {
+                        @Override
+                        public void onResponse(Call<Result> call, Response<Result> response) {
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<Result> call, Throwable throwable) {
+
+                        }
+                    });
+                });
+            }
             // 创建按钮面板
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0)); // 水平间距 10
             buttonPanel.add(closeButton); // 添加关闭按钮
@@ -403,8 +444,8 @@ public class SimulationExportPanel extends JPanel {
             // 创建关闭按钮
             JButton closeButton = new JButton("关闭");
             closeButton.addActionListener(ev -> dialog.dispose()); // 点击按钮时关闭对话框
-            net.sf.openrocket.util.ArrayList client_cn = removeTimestamp(AccelerationRequest.client_cn);
-            net.sf.openrocket.util.ArrayList client_cn2 = removeTimestamp(AccelerationRequest.client_cn2);
+            net.sf.openrocket.util.ArrayList<Coordinate> client_cn = removeTimestamp(AccelerationRequest.client_cn);
+            net.sf.openrocket.util.ArrayList<Coordinate> client_cn2 = removeTimestamp(AccelerationRequest.client_cn2);
             net.sf.openrocket.util.ArrayList server_cn = removeTimestamp(AccelerationRequest.server_cn);
             net.sf.openrocket.util.ArrayList server_cn2 = removeTimestamp(AccelerationRequest.server_cn2);
 
@@ -434,6 +475,42 @@ public class SimulationExportPanel extends JPanel {
                     System.out.println(throwable.getMessage());
                 }
             }));
+            ArrayList<Object> list = new ArrayList<>();
+            ArrayList<Object> c1 = new ArrayList<>();
+            System.out.println(client_cn.get(0));
+            if (!client_cn.isEmpty() && client_cn.get(0)instanceof Coordinate) {
+                for (Coordinate coo:client_cn){
+                    c1.add(coo.x);
+
+                }
+            }
+            ArrayList<Object> c2 = new ArrayList<>();
+            if (!client_cn2.isEmpty() && client_cn2.get(0) instanceof Coordinate) {
+                for (Coordinate coo:client_cn2){
+                    c2.add(coo.x);
+
+
+                }
+            }
+            list.add(c1);
+            list.add(c2);
+            System.out.println(list.size());
+            System.out.println(client_cn.size());
+            if (!list.isEmpty()) {
+                checkButton.addActionListener(e1 -> {
+                    OpenRocket.eduCoderService.AccelerationPLT(list).enqueue(new Callback<Result>() {
+                        @Override
+                        public void onResponse(Call<Result> call, Response<Result> response) {
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<Result> call, Throwable throwable) {
+
+                        }
+                    });
+                });
+            }
 
 
             // 创建按钮面板
@@ -511,6 +588,22 @@ public class SimulationExportPanel extends JPanel {
                     }
                 });
             });
+            if (!client_cn.isEmpty() && client_cn.get(0) instanceof Double) {
+                checkButton.addActionListener(e1 -> {
+                    OpenRocket.eduCoderService.calculateStabilityPLT(client_cn).enqueue(new Callback<Result>() {
+                        @Override
+                        public void onResponse(Call<Result> call, Response<Result> response) {
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<Result> call, Throwable throwable) {
+
+                        }
+                    });
+                });
+
+            }
 
 
             // 创建按钮面板
@@ -595,6 +688,29 @@ public class SimulationExportPanel extends JPanel {
                     System.out.println(throwable.getMessage());
                 }
             }));
+            ArrayList<Object> list = new ArrayList<>();
+            if (!client1.isEmpty() && client1.get(0) instanceof Double) {
+                list.add(client1);
+            }
+            if (!client2.isEmpty() && client2.get(0) instanceof Double) {
+                list.add(client2);
+            }
+            if (!client3.isEmpty() && client3.get(0) instanceof Double) {
+                list.add(client3);
+            }
+            if (!list.isEmpty()) {
+                checkButton.addActionListener(e1 -> OpenRocket.eduCoderService.calculateTotalMomentPLT(list).enqueue(new Callback<Result>() {
+                    @Override
+                    public void onResponse(Call<Result> call, Response<Result> response) {
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<Result> call, Throwable throwable) {
+
+                    }
+                }));
+            }
 
 
             // 创建按钮面板
@@ -670,6 +786,22 @@ public class SimulationExportPanel extends JPanel {
                     System.out.println(throwable.getMessage());
                 }
             }));
+            //坐标信息
+            //正确数据
+            if (!client.isEmpty() && (client.get(0) instanceof Double)) {
+                checkButton.addActionListener(e1 -> OpenRocket.eduCoderService.calculateTotalPressureCDPLT(client).enqueue(new Callback<Result>() {
+                    @Override
+                    public void onResponse(Call<Result> call, Response<Result> response) {
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<Result> call, Throwable throwable) {
+
+                    }
+                }));
+                //发送数据........
+            }
 
 
             // 创建按钮面板

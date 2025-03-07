@@ -508,7 +508,7 @@ public class SimulationPlotPanel extends JPanel {
             rightTextArea.setLineWrap(true); // 自动换行
             rightTextArea.setWrapStyleWord(true); // 仅在单词边界处换行
             rightTextArea.setFont(new Font("Monospaced", Font.PLAIN, 14)); // 设置字体
-			rightTextArea.setText(TotalBasalResistanceRequest.client_cn.toString());
+            rightTextArea.setText(TotalBasalResistanceRequest.client_cn.toString());
             JScrollPane rightScrollPane = new JScrollPane(rightTextArea);
             mainPanel.add(rightScrollPane);
 
@@ -536,17 +536,35 @@ public class SimulationPlotPanel extends JPanel {
             ArrayList client_cn = removeTimestamp(TotalBasalResistanceRequest.client_cn);
             ArrayList server_cn = removeTimestamp(TotalBasalResistanceRequest.server_cn);
 
-            DataRequest request = new DataRequest(client_cn,server_cn);
+            DataRequest request = new DataRequest(client_cn, server_cn);
             checkButton.addActionListener(e1 -> OpenRocket.eduCoderService.checkJSON(request).enqueue(new Callback<Result>() {
                 @Override
                 public void onResponse(Call<Result> call, Response<Result> response) {
                     JOptionPane.showMessageDialog(dialog, "请点击平台评测按钮");
                 }
+
                 @Override
                 public void onFailure(Call<Result> call, Throwable throwable) {
                     System.out.println(throwable.getMessage());
                 }
             }));
+            if (!client_cn.isEmpty()&&client_cn.get(0) instanceof Double) {
+                checkButton.addActionListener(e1 -> {
+                    OpenRocket.eduCoderService.calculateCDPLT(client_cn).enqueue(new Callback<Result>() {
+                        @Override
+                        public void onResponse(Call<Result> call, Response<Result> response) {
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<Result> call, Throwable throwable) {
+
+                        }
+                    });
+
+                });
+
+            }
         });
 
 
@@ -575,7 +593,7 @@ public class SimulationPlotPanel extends JPanel {
             rightTextArea.setLineWrap(true); // 自动换行
             rightTextArea.setWrapStyleWord(true); // 仅在单词边界处换行
             rightTextArea.setFont(new Font("Monospaced", Font.PLAIN, 14)); // 设置字体
-			rightTextArea.setText(BodyPressureCDRequest.client_cn.toString());
+            rightTextArea.setText(BodyPressureCDRequest.client_cn.toString());
             JScrollPane rightScrollPane = new JScrollPane(rightTextArea);
             mainPanel.add(rightScrollPane);
 
@@ -602,7 +620,7 @@ public class SimulationPlotPanel extends JPanel {
             dialog.setVisible(true); // 显示对话框
             ArrayList client_cn = removeTimestamp(BodyPressureCDRequest.client_cn);
             ArrayList server_cn = removeTimestamp(BodyPressureCDRequest.server_cn);
-            DataRequest request = new DataRequest(client_cn,server_cn);
+            DataRequest request = new DataRequest(client_cn, server_cn);
             //点击测评更新值
             checkButton.addActionListener(e1 -> {
                 OpenRocket.eduCoderService.checkJSON(request).enqueue(new Callback<Result>() {
@@ -618,6 +636,22 @@ public class SimulationPlotPanel extends JPanel {
                     }
                 });
             });
+            if (!client_cn.isEmpty()&&client_cn.get(0) instanceof Double) {
+                checkButton.addActionListener(e1 -> {
+                    OpenRocket.eduCoderService.calculatePressureCDPLT(client_cn).enqueue(new Callback<Result>() {
+                        @Override
+                        public void onResponse(Call<Result> call, Response<Result> response) {
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<Result> call, Throwable throwable) {
+
+                        }
+                    });
+                });
+
+            }
         });
 
         //尾翼压差阻力ui
@@ -645,7 +679,7 @@ public class SimulationPlotPanel extends JPanel {
             rightTextArea.setLineWrap(true); // 自动换行
             rightTextArea.setWrapStyleWord(true); // 仅在单词边界处换行
             rightTextArea.setFont(new Font("Monospaced", Font.PLAIN, 14)); // 设置字体
-			rightTextArea.setText(FinsetPressureCDRequest.client_cn.toString());
+            rightTextArea.setText(FinsetPressureCDRequest.client_cn.toString());
             JScrollPane rightScrollPane = new JScrollPane(rightTextArea);
             mainPanel.add(rightScrollPane);
 
@@ -672,7 +706,7 @@ public class SimulationPlotPanel extends JPanel {
             dialog.setVisible(true); // 显示对话框
             ArrayList client_cn = removeTimestamp(FinsetPressureCDRequest.client_cn);
             ArrayList server_cn = removeTimestamp(FinsetPressureCDRequest.server_cn);
-            DataRequest request = new DataRequest(client_cn,server_cn);
+            DataRequest request = new DataRequest(client_cn, server_cn);
             System.out.println(FinsetPressureCDRequest.client_cn);
             System.out.println(FinsetPressureCDRequest.server_cn);
             System.out.println(FinsetPressureCDRequest.server_cn.size());
@@ -693,6 +727,21 @@ public class SimulationPlotPanel extends JPanel {
                     }
                 });
             });
+            if (!client_cn.isEmpty()&&client_cn.get(0) instanceof Double) {
+                checkButton.addActionListener(e1 -> {
+                    OpenRocket.eduCoderService.calculateFinsetPressureCDPLT(client_cn).enqueue(new Callback<Result>() {
+                        @Override
+                        public void onResponse(Call<Result> call, Response<Result> response) {
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<Result> call, Throwable throwable) {
+
+                        }
+                    });
+                });
+            }
         });
 
         //轴向力系数ui
@@ -720,7 +769,7 @@ public class SimulationPlotPanel extends JPanel {
             rightTextArea.setLineWrap(true); // 自动换行
             rightTextArea.setWrapStyleWord(true); // 仅在单词边界处换行
             rightTextArea.setFont(new Font("Monospaced", Font.PLAIN, 14)); // 设置字体
-			rightTextArea.setText(AxialCDRequest.client_cn.toString());
+            rightTextArea.setText(AxialCDRequest.client_cn.toString());
             JScrollPane rightScrollPane = new JScrollPane(rightTextArea);
             mainPanel.add(rightScrollPane);
 
@@ -747,7 +796,7 @@ public class SimulationPlotPanel extends JPanel {
             dialog.setVisible(true); // 显示对话框
             ArrayList client_cn = removeTimestamp(AxialCDRequest.client_cn);
             ArrayList server_cn = removeTimestamp(AxialCDRequest.server_cn);
-            DataRequest request = new DataRequest(client_cn,server_cn);
+            DataRequest request = new DataRequest(client_cn, server_cn);
 
             //点击测评更新值
             newButton.addActionListener(e1 -> {
@@ -763,6 +812,24 @@ public class SimulationPlotPanel extends JPanel {
                     }
                 });
             });
+            if (!client_cn.isEmpty()&&client_cn.get(0) instanceof Double) {
+                newButton.addActionListener(e1 -> {
+
+
+                    OpenRocket.eduCoderService.calculateAxialCDPLT(client_cn).enqueue(new Callback<Result>() {
+                        @Override
+                        public void onResponse(Call<Result> call, Response<Result> response) {
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<Result> call, Throwable throwable) {
+
+                        }
+                    });
+                });
+
+            }
         });
 
         //总体摩擦阻力ui
@@ -789,7 +856,7 @@ public class SimulationPlotPanel extends JPanel {
             rightTextArea.setLineWrap(true); // 自动换行
             rightTextArea.setWrapStyleWord(true); // 仅在单词边界处换行
             rightTextArea.setFont(new Font("Monospaced", Font.PLAIN, 14)); // 设置字体
-			rightTextArea.setText(FrictionCDRequest.client_cn.toString());
+            rightTextArea.setText(FrictionCDRequest.client_cn.toString());
             JScrollPane rightScrollPane = new JScrollPane(rightTextArea);
             mainPanel.add(rightScrollPane);
 
@@ -818,14 +885,13 @@ public class SimulationPlotPanel extends JPanel {
             net.sf.openrocket.util.ArrayList client_cn = removeTimestamp(FrictionCDRequest.client_cn);
             net.sf.openrocket.util.ArrayList server_cn = removeTimestamp(FrictionCDRequest.server_cn);
 
-            DataRequest request = new DataRequest(client_cn,server_cn);
+            DataRequest request = new DataRequest(client_cn, server_cn);
             //点击测评更新值
             newButton.addActionListener(e1 -> {
                 OpenRocket.eduCoderService.checkJSON(request).enqueue(new Callback<Result>() {
                     @Override
                     public void onResponse(Call<Result> call, Response<Result> response) {
                         JOptionPane.showMessageDialog(dialog, "请点击平台评测按钮");
-
 
 
                     }
@@ -836,6 +902,23 @@ public class SimulationPlotPanel extends JPanel {
                     }
                 });
             });
+            if (! client_cn.isEmpty()&&client_cn.get(0) instanceof Double) {
+                newButton.addActionListener(e1 -> {
+
+                    OpenRocket.eduCoderService.calculateFrictionCDPLT(client_cn).enqueue(new Callback<Result>() {
+                        @Override
+                        public void onResponse(Call<Result> call, Response<Result> response) {
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<Result> call, Throwable throwable) {
+
+                        }
+                    });
+                });
+
+            }
         });
 
         // In order to consistantly update the ui, we need to validate before repaint.

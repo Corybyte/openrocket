@@ -755,6 +755,7 @@ public class FinSetCalc extends RocketComponentCalc {
 			request.setTimestamp(System.nanoTime());
 			request.setRefArea(conditions.getRefArea());
 			FinsetPressureCDRequest.server_cn.add("[" + time + "]"+cd);
+
 			//发送请求
 			if (OpenRocket.flag.equals("calculateFinsetPCD")||OpenRocket.flag.equals("")) {
 				OpenRocket.eduCoderService.calculateFinsetPressureCD(request).enqueue(new Callback<Result>() {

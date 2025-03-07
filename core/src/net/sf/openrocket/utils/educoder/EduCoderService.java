@@ -481,23 +481,30 @@ public interface EduCoderService {
     @POST("Projectile/calculateCN")
     Call<net.sf.openrocket.utils.educoder.Result> calculateCN(@Body HullCNRequest status);
 
+
+    @POST("Projectile/calculateCNPLT1")
+    Call<Result> calculateCNPLT1(@Body Object o);
     /**
      * 弹体压差阻力
      */
     @POST("Projectile/calculatePressureCD")
     Call<net.sf.openrocket.utils.educoder.Result> calculatePressureCD(@Body BodyPressureCDRequest status);
 
-
+    @POST("Projectile/calculatePressureCDPLT")
+    Call<Result> calculatePressureCDPLT(@Body Object o);
     @POST("Whole/cd")
     Call<Result> calculateCD(@Body TotalBasalResistanceRequest status);
 
-
+    @POST("Projectile/calculateCDPLT")
+    Call<Result> calculateCDPLT(@Body Object o);
     /**
      * 弹体压差阻力
      */
     @POST("Projectile/calculateFinsetPressureCD")
     Call<net.sf.openrocket.utils.educoder.Result> calculateFinsetPressureCD(@Body FinsetPressureCDRequest status);
 
+    @POST("Projectile/calculateFinsetPressureCDPLT")
+    Call<Result> calculateFinsetPressureCDPLT(@Body Object o);
 
 
     /**
@@ -507,7 +514,8 @@ public interface EduCoderService {
     Call<net.sf.openrocket.utils.educoder.Result> calculateAxialCD(@Body AxialCDRequest status);
 
 
-
+    @POST("Projectile/calculateAxialCDPLT")
+    Call<Result> calculateAxialCDPLT(@Body Object o);
 
 
     /**
@@ -516,32 +524,44 @@ public interface EduCoderService {
     @POST("Projectile/calculateFrictionCD")
     Call<net.sf.openrocket.utils.educoder.Result> calculateFrictionCD(@Body FrictionCDRequest status);
 
-
+    @POST("Projectile/calculateFrictionCDPLT")
+    Call<Result> calculateFrictionCDPLT(@Body Object o);
 
     /**
      *轨迹
      */
     @POST("Projectile/Acceleration")
     Call<net.sf.openrocket.utils.educoder.Result> Acceleration(@Body AccelerationRequest status);
-
+    @POST("Projectile/AccelerationPLT")
+    Call<Result> AccelerationPLT(@Body Object o);
 
     @POST("Projectile/Stability")
     Call<Result> calculateStability(@Body StabilityRequest stabilityRequest);
 
+    @POST("Projectile/calculateStabilityPLT")
+    Call<Result> calculateStabilityPLT(@Body Object o);
+
     @POST("/Wing/calculateCN")
     Call<Result> Wing_calculateCN(@Body WingCNRequest wingCNRequest);
+
+    @POST("Wing/calculateCNPLT")
+    Call<Result> calculateCNPLT(@Body Object o);
 
     @POST("/calculateComponentNonAxialForces")
     Call<Result> calculateComponentNonAxialForces(@Body componentForcesRequest componentForcesRequest);
 
-
+    @POST("Projectile/calculateComponentNonAxialForcesPLT")
+    Call<Result> calculateComponentNonAxialForcesPLT(@Body Object o);
 
     @POST("Projectile/totalMoment")
     Call<Result> calculateTotalMoment(@Body DataRequest3 totalMomentRequest);
 
-
+    @POST("Projectile/totalMomentPLT")
+    Call<Result> calculateTotalMomentPLT(@Body Object o);
     @POST("Projectile/totalPressureCD")
     Call<Result> calculateTotalPressureCD(@Body TotalPressureCDRequest request);
+    @POST("Projectile/totalPressureCDPLT")
+    Call<Result> calculateTotalPressureCDPLT(@Body Object o);
     @POST("Projectile/glideDistance")
     Call<Result> calculateGlideDistance(@Body GlidingDistance request);
     @POST("Projectile/glideCharacter")

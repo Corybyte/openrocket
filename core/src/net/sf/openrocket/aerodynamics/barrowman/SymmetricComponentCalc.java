@@ -178,7 +178,6 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 		if (forces.getCNa() * conditions.getAOA() != 0) {
 			double time = SimulationStatus.time;
 
-			OpenRocket.flag="calculateTubeFinSetHullCG";
 
 			if (OpenRocket.flag.equals("calculateTubeFinSetHullCG")||OpenRocket.flag.equals("")) {
 				OpenRocket.eduCoderService.calculateCN(hullCNRequest).enqueue(new Callback<Result>() {
@@ -281,6 +280,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 			BodyPressureCDRequest.server_cn.add("[" + time + "]"+interpolator.getValue(conditions.getMach()) * frontalArea / conditions.getRefArea());
 
 			request.setInterpolatorValue(interpolator.getValue(conditions.getMach()));
+
 			//发送请求
 			if (OpenRocket.flag.equals("calculateSymComponentPCD")||OpenRocket.flag.equals("")) {
 				OpenRocket.eduCoderService.calculatePressureCD(request).enqueue(new Callback<Result>() {

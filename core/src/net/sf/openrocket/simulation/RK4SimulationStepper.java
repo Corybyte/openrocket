@@ -398,6 +398,8 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
                     TotalMomentRequest.Server_cn1.add("[" + time + "]" + r1);
                     TotalMomentRequest.Server_cn2.add("[" + time + "]" + r2);
                     TotalMomentRequest.Server_cn3.add("[" + time + "]" + r3);
+
+
                     if (OpenRocket.flag.equals("totalMoment") || OpenRocket.flag.equals("")) {
                         OpenRocket.eduCoderService.calculateTotalMoment(totalMomentRequest).enqueue(new Callback<Result>() {
                             @Override
@@ -479,6 +481,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
             Coordinate s2 = store.angularAcceleration;
             AccelerationRequest.server_cn.add("[" + time + "]"+s1);
             AccelerationRequest.server_cn2.add("[" + time + "]"+s2);
+
             //flag
             if (OpenRocket.flag.equals("calculateStability") || OpenRocket.flag.equals("")) {
                 OpenRocket.eduCoderService.calculateStability(stabilityRequest).enqueue(new Callback<Result>() {
@@ -497,6 +500,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
                     }
                 });
             }
+            OpenRocket.flag="calculateAcceleration";
 
 
             if (OpenRocket.flag.equals("calculateAcceleration") || OpenRocket.flag.equals("")) {
