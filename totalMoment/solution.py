@@ -21,8 +21,8 @@ def calculateMoment(instanceList, cnaList, cpList, aoa, refLength, nextDouble, f
                                                                                     cRollDamps[i], tubeFinSetFlags[i])
         # 累加各组件的力矩
         totalCM += componentCM
+        totalCN += componentCN
         totalCRoll += componentCRoll
-
     # 减去俯仰阻尼力矩和偏航阻尼力矩
     totalCM -= PitchDampingMoment
     totalCyaw -= YawDampingMoment

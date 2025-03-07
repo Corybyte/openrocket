@@ -11,10 +11,21 @@ from calculateFrictionCD.calculateFrictionCDHelper import calculateFriectionCDHe
 from calculateSymComponentPCD import calculateSymPCDHelper
 from calculateStability.calculateStabilityHelper import calculateStabilityHelper
 from calculateTotalPressureCD.totalPressureCDHelper import calculatePressureCDHelper
-from calculateTubeFinSetHullCG.utils import Coordinate
 from calculateGlideDistance.calculateGlideDistanceHelper import calculateGlideDistancehelper
 from calculateGlideCharacter.calculateGlideCharacterHelper import calculateGlideCharacterhelper
-from calculatecomponentNonAxialForces import extract_cn_from_json, addition_CN
+from calculatecomponentNonAxialForces import addition_CN
+from openrocket.calculateAcceleration.pltImage2 import calculateAccelerationPLT
+from openrocket.calculateAxialCD.pltImage import axialCDPLT
+from openrocket.calculateCD.pltImage import cdPLT
+from openrocket.calculateFinsetPCD.pltImage import finsetPressureCDPLT
+from openrocket.calculateFrictionCD.pltImage import frictionPLT
+from openrocket.calculateStability.pltImage import stabilityPLT
+from openrocket.calculateSymComponentPCD.pltImage import pressureCD
+from openrocket.calculateTotalPressureCD.pltImage import totalpressureCD
+from openrocket.calculateTubeFinSetHullCG.pltImage import hullCNPLT
+from openrocket.calculatecomponentNonAxialForces.pltImage import componentNonAxialForcePLT
+from openrocket.totalMoment.pltImage import totalMomentPLTImage
+from openrocket.wingDemo.pltImage import WingCNPLT
 from totalMoment.totalMomentHelper import calculateTotalMomentHelper
 from utils import *
 from podsCG import pods_cg_helper
@@ -65,7 +76,6 @@ from bodyTubeCG import body_tube_cg_helper
 from bodyTubeCP import body_tube_cp_helper
 
 import traceback
-import logging
 from calculateTubeFinSetHullCG import demo
 from wingDemo import calculate_nonaxial_forces
 
@@ -101,12 +111,12 @@ def check(result, answer, dir):
         elif flag and not flag2:
             with open(os.path.join(dir, "result.txt"), 'w') as f:
                 f.write(" longitudinalUnitInertia 计算错误")
-                relative_error = abs(result[1]-answer[1])
+                relative_error = abs(result[1] - answer[1])
                 f.write(f"n（误差：{relative_error:.2f}%）\n")
         elif not flag and flag2:
             with open(os.path.join(dir, "result.txt"), 'w') as f:
                 f.write(" rotationalUnitInertia 计算错误")
-                relative_error = abs(result[0]-answer[0])
+                relative_error = abs(result[0] - answer[0])
                 f.write(f"n（误差：{relative_error:.2f}%）\n")
 
         else:
@@ -118,11 +128,12 @@ def check(result, answer, dir):
                 f.write("头歌实践教学平台欢迎你\n请认真作答\nYes")
         else:
 
-            relative_error = abs(result-answer)
+            relative_error = abs(result - answer)
             print(relative_error)
             with open(os.path.join(dir, "result.txt"), 'w') as f:
                 f.write("头歌实践教学平台欢迎你\n请认真作答\n")
                 f.write(f"答案错误\n（误差：{relative_error:.2f}%）\n")
+
 
 # NoseCone
 @app.route('/NoseCone/calculateCG', methods=['POST'])
@@ -914,11 +925,171 @@ def Acceleration():
         return {"code": 500, "msg": "error", "result": traceback.format_exc()}
 
 
-# plt 三维图
+# plt 弹道轨迹三维图
 @app.route('/Projectile/position', methods=['POST'])
 def AccelerationPosition():
     try:
         plot_rocket_from_json(request.json)
+        return {"code": 200, "msg": "ok", "result": 0}
+    except Exception:
+        with open(os.path.join("calculateFinsetPCD", "error.txt"), 'w') as f:
+            f.write(traceback.format_exc())
+        return {"code": 500, "msg": "error", "result": traceback.format_exc()}
+
+
+# plt 总体压差图
+@app.route('/Projectile/totalPressureCDPLT', methods=['POST'])
+def totalpressurecdPLT():
+    try:
+        print("totalpressurecdPLT")
+        totalpressureCD(request.json, "./calculateTotalPressureCD/image")
+        return {"code": 200, "msg": "ok", "result": 0}
+    except Exception:
+        print(Exception)
+        with open(os.path.join("calculateFinsetPCD", "error.txt"), 'w') as f:
+            f.write(traceback.format_exc())
+        return {"code": 500, "msg": "error", "result": traceback.format_exc()}
+
+
+# plt  totalmoment图
+@app.route('/Projectile/totalMomentPLT', methods=['POST'])
+def totalMomentPLT():
+    try:
+        print("totalMomentPLT")
+        totalMomentPLTImage(request.json, "./totalMoment/image")
+        # plot_rocket_from_json(request.json)
+        return {"code": 200, "msg": "ok", "result": 0}
+    except Exception:
+        with open(os.path.join("calculateFinsetPCD", "error.txt"), 'w') as f:
+            f.write(traceback.format_exc())
+        return {"code": 500, "msg": "error", "result": traceback.format_exc()}
+
+
+# plt  总体法向力
+@app.route('/Projectile/calculateComponentNonAxialForcesPLT', methods=['POST'])
+def calculateComponentNonAxialForcesPLT():
+    try:
+        print("calculateComponentNonAxialForcesPLT")
+        componentNonAxialForcePLT(request.json, "./calculatecomponentNonAxialForces/image")
+        return {"code": 200, "msg": "ok", "result": 0}
+    except Exception:
+        with open(os.path.join("calculateFinsetPCD", "error.txt"), 'w') as f:
+            f.write(traceback.format_exc())
+        return {"code": 500, "msg": "error", "result": traceback.format_exc()}
+
+
+# plt  calculateCNPLT 尾翼
+@app.route('/Wing/calculateCNPLT', methods=['POST'])
+def calculateCNPLT():
+    try:
+        print("calculateCNPLT")
+        WingCNPLT(request.json, "./wingDemo/image")
+        return {"code": 200, "msg": "ok", "result": 0}
+    except Exception:
+        with open(os.path.join("calculateFinsetPCD", "error.txt"), 'w') as f:
+            f.write(traceback.format_exc())
+        return {"code": 500, "msg": "error", "result": traceback.format_exc()}
+
+
+# plt  稳定性
+@app.route('/Projectile/calculateStabilityPLT', methods=['POST'])
+def calculateStabilityPLT():
+    try:
+        print("calculateStabilityPLT")
+        stabilityPLT(request.json, "./calculateStability/image")
+        return {"code": 200, "msg": "ok", "result": 0}
+    except Exception:
+        with open(os.path.join("calculateFinsetPCD", "error.txt"), 'w') as f:
+            f.write(traceback.format_exc())
+        return {"code": 500, "msg": "error", "result": traceback.format_exc()}
+
+
+# plt  AccelerationPLT
+@app.route('/Projectile/AccelerationPLT', methods=['POST'])
+def AccelerationPLT():
+    try:
+        print("AccelerationPLT")
+        calculateAccelerationPLT(request.json, "./calculateAcceleration/image")
+        return {"code": 200, "msg": "ok", "result": 0}
+    except Exception:
+        with open(os.path.join("calculateFinsetPCD", "error.txt"), 'w') as f:
+            f.write(traceback.format_exc())
+        return {"code": 500, "msg": "error", "result": traceback.format_exc()}
+
+
+# plt  calculateFrictionCDPLT
+@app.route('/Projectile/calculateFrictionCDPLT', methods=['POST'])
+def calculateFrictionCDPLT():
+    try:
+        print("calculateFrictionCDPLT")
+        frictionPLT(request.json, "./calculateFrictionCD/image")
+        return {"code": 200, "msg": "ok", "result": 0}
+    except Exception:
+        with open(os.path.join("calculateFinsetPCD", "error.txt"), 'w') as f:
+            f.write(traceback.format_exc())
+        return {"code": 500, "msg": "error", "result": traceback.format_exc()}
+
+
+# plt  calculateAxialCDPLT
+@app.route('/Projectile/calculateAxialCDPLT', methods=['POST'])
+def calculateAxialCDPLT():
+    try:
+        print("calculateAxialCDPLT")
+        # plot_rocket_from_json(request.json)
+        axialCDPLT(request.json, "./calculateAxialCD/image")
+        return {"code": 200, "msg": "ok", "result": 0}
+    except Exception:
+        with open(os.path.join("calculateFinsetPCD", "error.txt"), 'w') as f:
+            f.write(traceback.format_exc())
+        return {"code": 500, "msg": "error", "result": traceback.format_exc()}
+
+
+# plt  calculateFinsetPressureCDPLT
+@app.route('/Projectile/calculateFinsetPressureCDPLT', methods=['POST'])
+def calculateFinsetPressureCDPLT():
+    try:
+        print("calculateFinsetPressureCDPLT")
+        finsetPressureCDPLT(request.json, "./calculateFinsetPCD/image")
+        return {"code": 200, "msg": "ok", "result": 0}
+    except Exception:
+        with open(os.path.join("calculateFinsetPCD", "error.txt"), 'w') as f:
+            f.write(traceback.format_exc())
+        return {"code": 500, "msg": "error", "result": traceback.format_exc()}
+
+
+# plt  calculateCDPLT
+@app.route('/Projectile/calculateCDPLT', methods=['POST'])
+def calculateCDPLT():
+    try:
+        print("calculateCDPLT")
+        cdPLT(request.json, "./calculateCD/image")
+        return {"code": 200, "msg": "ok", "result": 0}
+    except Exception:
+        with open(os.path.join("calculateFinsetPCD", "error.txt"), 'w') as f:
+            f.write(traceback.format_exc())
+        return {"code": 500, "msg": "error", "result": traceback.format_exc()}
+
+
+# plt  calculatePressureCD  弹体的
+@app.route('/Projectile/calculatePressureCDPLT', methods=['POST'])
+def calculatePressureCD():
+    try:
+        print("calculatePressureCD")
+        pressureCD(request.json, "./calculateSymComponentPCD/image")
+        return {"code": 200, "msg": "ok", "result": 0}
+    except Exception:
+        with open(os.path.join("calculateFinsetPCD", "error.txt"), 'w') as f:
+            f.write(traceback.format_exc())
+        return {"code": 500, "msg": "error", "result": traceback.format_exc()}
+
+
+# plt  calculateCNPLT1
+@app.route('/Projectile/calculateCNPLT1', methods=['POST'])
+def calculateCNPLT1():
+    try:
+        print("calculatePressureCD")
+        hullCNPLT(request.json, "./calculateTubeFinSetHullCG/image")
+
         return {"code": 200, "msg": "ok", "result": 0}
     except Exception:
         with open(os.path.join("calculateFinsetPCD", "error.txt"), 'w') as f:
@@ -971,9 +1142,6 @@ def check_json_api():
     print(json_a)
     print(json_b)
 
-
-
-
     # 原json比较
     # ret = check_json(json_a, json_b)
     # 新无序列表比较
@@ -987,8 +1155,8 @@ def check_json_api():
         # 计算最大误差
         max_error = 0
         for i in range(len(json_b)):
-            if abs(json_a[i]-json_b[i]) > max_error:
-                max_error = abs(json_a[i]-json_b[i])
+            if abs(json_a[i] - json_b[i]) > max_error:
+                max_error = abs(json_a[i] - json_b[i])
         with open(file_path, 'w+') as f:
             f.write("头歌实践教学平台欢迎你\n请认真作答\n比对失败")
             f.write(f"n（最大误差：{max_error:.2f}%）\n")
@@ -1021,16 +1189,15 @@ def check_json_api2():
         max_error = 0
         max_error2 = 0
         for i in range(len(json_b)):
-            if abs(json_a[i]-json_b[i]) > max_error:
-                max_error = abs(json_a[i]-json_b[i])
+            if abs(json_a[i] - json_b[i]) > max_error:
+                max_error = abs(json_a[i] - json_b[i])
         for i in range(len(json_b2)):
-            if abs(json_a2[i]-json_b2[i]) > max_error2:
-                max_error2 = abs(json_a2[i]-json_b2[i])
+            if abs(json_a2[i] - json_b2[i]) > max_error2:
+                max_error2 = abs(json_a2[i] - json_b2[i])
         with open(file_path, 'w+') as f:
             f.write("头歌实践教学平台欢迎你\n请认真作答\n比对失败")
             f.write(f"n（线性加速度最大误差：{max_error:.2f}%）\n")
             f.write(f"n（角加速度最大误差：{max_error2:.2f}%）\n")
-
 
     return jsonify({"code": 200, "msg": ret})
 
@@ -1094,6 +1261,7 @@ def calculateTotalMoment():
     app.logger.info(f"{request.json}")
     try:
         result = calculateTotalMomentHelper(request.json)
+        print(result)
         return {"code": 200, "msg": "ok", "result": result}
     except Exception as e:
         print(traceback.format_exc())
@@ -1137,8 +1305,8 @@ def calculateglideDistance():
             f.write(text)
         return {"code": 200, "msg": "ok", "result": result}
     except Exception as e:
-        error_message=""
-        if isinstance(e,ZeroDivisionError):
+        error_message = ""
+        if isinstance(e, ZeroDivisionError):
             error_message += "当前火箭无法分离，请检查火箭模型"
         with open(os.path.join("calculateGlideDistance", "error.txt"), 'w') as f:
             print(error_message)
@@ -1200,4 +1368,4 @@ def calculateComponentNonAxialForces_api():
 
 
 if __name__ == '__main__':
-    app.run(host="127.0.0.1", port=8080,debug=True, threaded=True)
+    app.run(host="127.0.0.1", port=8080, debug=True, threaded=True)
