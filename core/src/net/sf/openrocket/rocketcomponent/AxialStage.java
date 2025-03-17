@@ -7,8 +7,6 @@ import net.sf.openrocket.rocketcomponent.position.AxialMethod;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.Coordinate;
 
-import static net.sf.openrocket.gui.main.ComponentIcons.LARGE_SUFFIX;
-import static net.sf.openrocket.gui.main.ComponentIcons.stage;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
 public class AxialStage extends ComponentAssembly implements FlightConfigurableComponent {
@@ -24,8 +22,6 @@ public class AxialStage extends ComponentAssembly implements FlightConfigurableC
 	 * default constructor, builds a rocket with zero stages
 	 */
 	public AxialStage(){
-		stage="";
-		LARGE_SUFFIX="";
 		this.separations = new FlightConfigurableParameterSet<StageSeparationConfiguration>( new StageSeparationConfiguration());
 		this.axialMethod = AxialMethod.AFTER;
 		this.stageNumber = 0;
