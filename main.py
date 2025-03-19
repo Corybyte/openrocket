@@ -1154,7 +1154,7 @@ def check_json_api():
         print("fail")
         # 计算最大误差
         max_error = 0
-        for i in range(len(json_b)):
+        for i in range(min(len(json_a), len(json_b))):
             if abs(json_a[i] - json_b[i]) > max_error:
                 max_error = abs(json_a[i] - json_b[i])
         with open(file_path, 'w+') as f:
