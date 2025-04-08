@@ -67,6 +67,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
     Deque<SimulationStatus> toSimulate = new ArrayDeque<SimulationStatus>();
 
     FlightData flightData;
+    double delayTime = 0.0;
 
     @Override
     public FlightData simulate(SimulationConditions simulationConditions) throws SimulationException {
@@ -164,6 +165,8 @@ public class BasicEventSimulationEngine implements SimulationEngine {
                 lastTime = event.getTime();
             }
         }
+        System.out.println("lastTime");
+        System.out.println(lastTime);
         List<Double> altitude = flightData.getBranch(0).get(FlightDataType.TYPE_ALTITUDE);
         List<Double> time = flightData.getBranch(0).get(FlightDataType.TYPE_TIME);
         List<Double> aoa = flightData.getBranch(0).get(FlightDataType.TYPE_AOA);
@@ -171,17 +174,34 @@ public class BasicEventSimulationEngine implements SimulationEngine {
         List<Double> refArea = flightData.getBranch(0).get(FlightDataType.TYPE_REFERENCE_AREA);
         List<Double> CD = flightData.getBranch(0).get(FlightDataType.TYPE_DRAG_COEFF);
         List<Double> mass = flightData.getBranch(0).get(FlightDataType.TYPE_MASS);
-
+        int closestIndex = -1;
+        //时间相等或者偏移量最小
+        double minDiff = Double.MAX_VALUE;
         for (int i = 0; i < time.size(); i++) {
-            if (lastTime == time.get(i)) {
-                lastAltitude = altitude.get(i);
-                lastMach = mach.get(i);
-                lastAOA = aoa.get(i);
-                lastRefArea = refArea.get(i);
-                c_d = CD.get(i);
+            double currentTime = time.get(i);
+            double diff = Math.abs(currentTime - lastTime);
+
+            // If exact match found, use it immediately
+            if (diff == 0) {
+                closestIndex = i;
                 break;
             }
+
+            // Track the closest time
+            if (diff < minDiff) {
+                minDiff = diff;
+                closestIndex = i;
+            }
         }
+        if (closestIndex != -1) {
+            lastAltitude = altitude.get(closestIndex);
+            lastMach = mach.get(closestIndex);
+            lastAOA = aoa.get(closestIndex);
+            lastRefArea = refArea.get(closestIndex);
+            c_d = CD.get(closestIndex);
+        }
+
+        System.out.println(lastAltitude);
         //calculate liftCp
         double mul = 1;
         if ((lastMach < 0.05) && (lastAOA > Math.PI / 4)) {
@@ -215,14 +235,14 @@ public class BasicEventSimulationEngine implements SimulationEngine {
         System.out.println("c_l: " + c_l);
         System.out.println("c_d: " + c_d);
         double tan = 1 / (c_l / c_d);
-        if (Double.isNaN(lastAltitude)){
-            lastAltitude=0;
+        if (Double.isNaN(lastAltitude)) {
+            lastAltitude = 0;
         }
-        if (Double.isNaN(c_l)){
-            c_l=0;
+        if (Double.isNaN(c_l)) {
+            c_l = 0;
         }
-        if (Double.isNaN(c_d)){
-            c_d=0.0;
+        if (Double.isNaN(c_d)) {
+            c_d = 0.0;
         }
         System.out.println("result: " + lastAltitude / tan);
         System.out.println(mass);
@@ -244,7 +264,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
                 }
             }
             for (Double planFormArea : componentArea) {
-				double aoa2 = MathUtil.clamp(aoa.get(i), 0, Math.PI);
+                double aoa2 = MathUtil.clamp(aoa.get(i), 0, Math.PI);
                 double sinAOA = 0;
                 double sincAOA = 0;
                 if (aoa2 < 0.001) {
@@ -260,57 +280,58 @@ public class BasicEventSimulationEngine implements SimulationEngine {
             Cls.add(cl);
         }
         int flag = 0;
-		double CL_max = 0.0;
-		for (Double d:Cls){
-			if (d>CL_max){
-				CL_max = d;
-			}
+        double CL_max = 0.0;
+        for (Double d : Cls) {
+            if (d > CL_max) {
+                CL_max = d;
+            }
 
-		}
+        }
         double lastmass = 0;
-        for (int i=mass.size()-1;i>=0;i--){
-            if (!Double.isNaN(mass.get(i))){
+        for (int i = mass.size() - 1; i >= 0; i--) {
+            if (!Double.isNaN(mass.get(i))) {
                 lastmass = mass.get(i);
                 break;
             }
         }
-        if (Double.isNaN(CL_max)){
-            CL_max=0.0;
+        if (Double.isNaN(CL_max)) {
+            CL_max = 0.0;
         }
 
 
-        if (OpenRocket.flag.equals("滑翔机距离")||OpenRocket.flag.equals("")) {
-            OpenRocket.eduCoderService.calculateGlideDistance(new GlidingDistance(lastAltitude, c_l, c_d)).enqueue(new Callback<Result>() {
-                @Override
-                public void onResponse(Call<Result> call, Response<Result> response) {
-                    //ignore;
-                    System.out.println("success...");
-                }
+        System.out.println("altitude.......");
+        System.out.println(lastAltitude);
+        System.out.println(c_l);
+        System.out.println(c_l);
+        OpenRocket.eduCoderService.calculateGlideDistance(new GlidingDistance(lastAltitude, c_l, c_d)).enqueue(new Callback<Result>() {
+            @Override
+            public void onResponse(Call<Result> call, Response<Result> response) {
+                //ignore;
+                System.out.println("success...");
+            }
 
-                @Override
-                public void onFailure(Call<Result> call, Throwable throwable) {
-                    //ignore;
-                    System.out.println(throwable.getMessage());
+            @Override
+            public void onFailure(Call<Result> call, Throwable throwable) {
+                //ignore;
+                System.out.println(throwable.getMessage());
 
-                }
-            });
-        }
-        if (OpenRocket.flag.equals("机动性能")||OpenRocket.flag.equals("")) {
-            OpenRocket.eduCoderService.calculateGlidingCharacter(new GlidingCharacter(CL_max, refArea.get(1), lastmass)).enqueue(new Callback<Result>() {
-                @Override
-                public void onResponse(Call<Result> call, Response<Result> response) {
-                    //ignore;
-                    System.out.println("success...");
+            }
+        });
+        OpenRocket.eduCoderService.calculateGlidingCharacter(new GlidingCharacter(CL_max, refArea.get(1), lastmass)).enqueue(new Callback<Result>() {
+            @Override
+            public void onResponse(Call<Result> call, Response<Result> response) {
+                //ignore;
+                System.out.println("success...");
 
-                }
+            }
 
-                @Override
-                public void onFailure(Call<Result> call, Throwable throwable) {
-                    //ignore;
-                    System.out.println(throwable.getMessage());
-                }
-            });
-        }
+            @Override
+            public void onFailure(Call<Result> call, Throwable throwable) {
+                //ignore;
+                System.out.println(throwable.getMessage());
+            }
+        });
+
 
         return flightData;
     }
@@ -535,6 +556,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
                 if (separationConfig.getSeparationEvent().isSeparationEvent(event, stage)) {
                     currentStatus.addEvent(new FlightEvent(FlightEvent.Type.STAGE_SEPARATION,
                             event.getTime() + separationConfig.getSeparationDelay(), stage));
+                    delayTime = separationConfig.getSeparationDelay();
                 }
             }
 
