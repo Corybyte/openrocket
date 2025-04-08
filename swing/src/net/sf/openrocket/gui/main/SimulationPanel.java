@@ -480,7 +480,7 @@ public class SimulationPanel extends JPanel {
 //		System.out.println("==========运行");
 		String[] options = {"弹体法向力", "尾翼法向力","轴向力系数",
 				"对称组件压差阻力","尾翼压差阻力","总体摩擦阻力","稳定性","弹道轨迹","总体法向力",
-				"总体力矩系数","总体基底阻力","总体压差阻力","默认（不进行任何关卡计算）"};
+				"总体力矩系数","总体基底阻力","总体压差阻力","滑翔机距离","机动性能","默认（不进行任何关卡计算）"};
 		String selectedOption = (String) JOptionPane.showInputDialog(
 				simulationTable.getParent(), // 父窗口
 				"请选择关卡选项：",  // 提示信息

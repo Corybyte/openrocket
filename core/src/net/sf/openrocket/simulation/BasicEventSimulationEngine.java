@@ -279,35 +279,38 @@ public class BasicEventSimulationEngine implements SimulationEngine {
         }
 
 
+        if (OpenRocket.flag.equals("滑翔机距离")||OpenRocket.flag.equals("")) {
+            OpenRocket.eduCoderService.calculateGlideDistance(new GlidingDistance(lastAltitude, c_l, c_d)).enqueue(new Callback<Result>() {
+                @Override
+                public void onResponse(Call<Result> call, Response<Result> response) {
+                    //ignore;
+                    System.out.println("success...");
+                }
 
-        OpenRocket.eduCoderService.calculateGlideDistance(new GlidingDistance(lastAltitude, c_l, c_d)).enqueue(new Callback<Result>() {
-            @Override
-            public void onResponse(Call<Result> call, Response<Result> response) {
-                //ignore;
-                System.out.println("success...");
-            }
+                @Override
+                public void onFailure(Call<Result> call, Throwable throwable) {
+                    //ignore;
+                    System.out.println(throwable.getMessage());
 
-            @Override
-            public void onFailure(Call<Result> call, Throwable throwable) {
-                //ignore;
-                System.out.println(throwable.getMessage());
+                }
+            });
+        }
+        if (OpenRocket.flag.equals("机动性能")||OpenRocket.flag.equals("")) {
+            OpenRocket.eduCoderService.calculateGlidingCharacter(new GlidingCharacter(CL_max, refArea.get(1), lastmass)).enqueue(new Callback<Result>() {
+                @Override
+                public void onResponse(Call<Result> call, Response<Result> response) {
+                    //ignore;
+                    System.out.println("success...");
 
-            }
-        });
-		OpenRocket.eduCoderService.calculateGlidingCharacter(new GlidingCharacter(CL_max,refArea.get(1),lastmass)).enqueue(new Callback<Result>() {
-			@Override
-			public void onResponse(Call<Result> call, Response<Result> response) {
-				//ignore;
-                System.out.println("success...");
+                }
 
-			}
-
-			@Override
-			public void onFailure(Call<Result> call, Throwable throwable) {
-				//ignore;
-				System.out.println(throwable.getMessage());
-			}
-		});
+                @Override
+                public void onFailure(Call<Result> call, Throwable throwable) {
+                    //ignore;
+                    System.out.println(throwable.getMessage());
+                }
+            });
+        }
 
         return flightData;
     }
