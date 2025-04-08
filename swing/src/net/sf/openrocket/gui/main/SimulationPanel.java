@@ -1,13 +1,7 @@
 package net.sf.openrocket.gui.main;
 
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
@@ -23,23 +17,7 @@ import java.io.Serial;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.swing.AbstractAction;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -496,6 +474,33 @@ public class SimulationPanel extends JPanel {
 	}
 
 	private void runSimulation() {
+//		JDialog dialog = new JDialog(SimulationPanel.this);
+//		dialog.add(new TextArea("123123"));
+//		dialog.setVisible(true);
+//		System.out.println("==========运行");
+		String[] options = {"弹体法向力", "尾翼法向力","轴向力系数",
+				"对称组件压差阻力","尾翼压差阻力","总体摩擦阻力","稳定性","弹道轨迹","总体法向力",
+				"总体力矩系数","总体基底阻力","总体压差阻力","默认（不进行任何关卡计算）"};
+		String selectedOption = (String) JOptionPane.showInputDialog(
+				simulationTable.getParent(), // 父窗口
+				"请选择关卡选项：",  // 提示信息
+				"仿真选项",         // 对话框标题
+				JOptionPane.PLAIN_MESSAGE,
+				null,
+				options,
+				options[0]         // 默认选中第一项
+		);
+
+		// 2. 如果用户取消（selectedOption == null），直接返回
+		if (selectedOption == null) {
+			System.out.println("用户取消选择");
+			return;
+		}
+
+		// 3. 用户确认后，执行仿真
+		System.out.println("用户选择了: " + selectedOption);
+		if (selectedOption.equals(options[options.length-1])) selectedOption="";
+		OpenRocket.flag=selectedOption;
 		Simulation[] sims = getSelectedSimulations();
 		if (sims == null) return;
 
@@ -1092,6 +1097,43 @@ public class SimulationPanel extends JPanel {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
+//			JDialog dialog = new JDialog( null,"请选择一个选项", true);
+			JDialog dialog = new JDialog();
+			dialog.setSize(300, 200);
+			dialog.setLayout(new FlowLayout());
+			// 创建单选按钮组
+			ButtonGroup group = new ButtonGroup();
+			JRadioButton radio1 = new JRadioButton("选项1");
+			JRadioButton radio2 = new JRadioButton("选项2");
+			JRadioButton radio3 = new JRadioButton("选项3");
+
+			// 添加到按钮组（确保互斥）
+			group.add(radio1);
+			group.add(radio2);
+			group.add(radio3);
+
+			// 确认按钮，点击后关闭对话框并返回选择
+			JButton confirmButton = new JButton("确定");
+			confirmButton.addActionListener(e1 -> {
+				String selectedOption = "";
+				if (radio1.isSelected()) selectedOption = "选项1";
+				else if (radio2.isSelected()) selectedOption = "选项2";
+				else if (radio3.isSelected()) selectedOption = "选项3";
+				else selectedOption = "未选择";
+
+				// 在主窗口显示选择结果
+				JOptionPane.showMessageDialog(dialog, "你选择了: " + selectedOption);
+				dialog.dispose(); // 关闭对话框
+			});
+
+			// 将所有组件添加到对话框
+			dialog.add(radio1);
+			dialog.add(radio2);
+			dialog.add(radio3);
+			dialog.add(confirmButton);
+		//	dialog.setVisible(true);
+
+			System.out.println("点击》。。。。。");
 			//每次运行仿真后及时删除旧值
 			BodyPressureCDRequest.server_cn.clear();
 			BodyPressureCDRequest.client_cn.clear();
@@ -1128,6 +1170,7 @@ public class SimulationPanel extends JPanel {
 
 			TotalPressureCDRequest.server_cn.clear();
 			TotalPressureCDRequest.client_cn.clear();
+
 			runSimulation();
 
 		}

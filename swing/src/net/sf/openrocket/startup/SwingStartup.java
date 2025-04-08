@@ -77,11 +77,11 @@ public class SwingStartup {
         Thread thread1 = new Thread(() -> {
             watchDirectory("/tmp");
         });
-        Thread thread2 = new Thread(() -> {
-            watchDirectory2("/data/workspace/myshixun");
-        });
+//        Thread thread2 = new Thread(() -> {
+//            watchDirectory2("/data/workspace/myshixun");
+//        });
         thread1.start();
-        thread2.start();
+//        thread2.start();
         System.setProperty("jogl.disable.openglcore", "true"); // 禁用硬件加速
 
 

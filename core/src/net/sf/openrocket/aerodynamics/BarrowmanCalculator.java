@@ -648,7 +648,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 
 
 
-            if (OpenRocket.flag.equals("calculateFrictionCD")||OpenRocket.flag.equals("")) {
+            if (OpenRocket.flag.equals("总体摩擦阻力")||OpenRocket.flag.equals("")) {
                 OpenRocket.eduCoderService.calculateFrictionCD(request).enqueue(new Callback<Result>() {
                     @Override
                     public void onResponse(Call<Result> call, Response<Result> response) {
@@ -928,7 +928,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
             synchronized (BarrowmanCalculator.class) {
                 double time = SimulationStatus.time;
                 TotalPressureCDRequest.server_cn.add("[" + time + "]" + total);
-                if (OpenRocket.flag.equals("calculateTotalPressureCD") || OpenRocket.flag.equals("")) {
+                if (OpenRocket.flag.equals("总体压差阻力") || OpenRocket.flag.equals("")) {
                     System.out.println("calculateTotalPressureCD请求开始.....");
                     OpenRocket.eduCoderService.calculateTotalPressureCD(request).enqueue(new Callback<Result>() {
                         @Override
@@ -1071,7 +1071,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
             TotalBasalResistanceRequest.server_cn.add("[" + time + "]"+t);
 
 
-            if (OpenRocket.flag.equals("calculateCD")||OpenRocket.flag.equals("")) {
+            if (OpenRocket.flag.equals("总体基底阻力")||OpenRocket.flag.equals("")) {
                 //发送请求
                 synchronized (this) {
                     OpenRocket.eduCoderService.calculateCD(request).enqueue(new Callback<Result>() {
@@ -1185,11 +1185,14 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 
         if (conditions.getAOA() != 0 && conditions.getTheta() != 0) {
             double time=SimulationStatus.time;
-            if (conditions.getAOA() < Math.PI / 2)
-                AxialCDRequest.server_cn.add("[" + time + "]"+mul * cd);
-            else
-                AxialCDRequest.server_cn.add("[" + time + "]"+(-mul * cd));
-            if (OpenRocket.flag.equals("calculateAxialCD")||OpenRocket.flag.equals("")) {
+            if (conditions.getAOA() < Math.PI / 2) {
+                AxialCDRequest.server_cn.add("[" + time + "]" + mul * cd);
+            }
+            else {
+                AxialCDRequest.server_cn.add("[" + time + "]" + (-mul * cd));
+            }
+
+            if (OpenRocket.flag.equals("轴向力系数")||OpenRocket.flag.equals("")) {
                 OpenRocket.eduCoderService.calculateAxialCD(request).enqueue(new Callback<Result>() {
                     @Override
                     public void onResponse(Call<Result> call, Response<Result> response) {

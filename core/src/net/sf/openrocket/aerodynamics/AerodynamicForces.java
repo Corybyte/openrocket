@@ -471,7 +471,7 @@ public class AerodynamicForces implements Cloneable, Monitorable {
             System.out.println(other.getCN());
         }
 
-        if (OpenRocket.flag.equals("calculatecomponentNonAxialForces")||OpenRocket.flag.equals("")) {
+        if (OpenRocket.flag.equals("总体法向力")||OpenRocket.flag.equals("")) {
             double time = SimulationStatus.time;
             OpenRocket.eduCoderService.calculateComponentNonAxialForces(request).enqueue(new Callback<Result>() {
                 @Override

@@ -179,7 +179,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 			double time = SimulationStatus.time;
 
 
-			if (OpenRocket.flag.equals("calculateTubeFinSetHullCG")||OpenRocket.flag.equals("")) {
+			if (OpenRocket.flag.equals("弹体法向力")||OpenRocket.flag.equals("")) {
 				OpenRocket.eduCoderService.calculateCN(hullCNRequest).enqueue(new Callback<Result>() {
 
 					@Override
@@ -282,7 +282,7 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 			request.setInterpolatorValue(interpolator.getValue(conditions.getMach()));
 
 			//发送请求
-			if (OpenRocket.flag.equals("calculateSymComponentPCD")||OpenRocket.flag.equals("")) {
+			if (OpenRocket.flag.equals("对称组件压差阻力")||OpenRocket.flag.equals("")) {
 				OpenRocket.eduCoderService.calculatePressureCD(request).enqueue(new Callback<Result>() {
 
 					@Override

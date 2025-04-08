@@ -400,7 +400,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
                     TotalMomentRequest.Server_cn3.add("[" + time + "]" + r3);
 
 
-                    if (OpenRocket.flag.equals("totalMoment") || OpenRocket.flag.equals("")) {
+                    if (OpenRocket.flag.equals("总体力矩系数") || OpenRocket.flag.equals("")) {
                         OpenRocket.eduCoderService.calculateTotalMoment(totalMomentRequest).enqueue(new Callback<Result>() {
                             @Override
                             public void onResponse(Call<Result> call, Response<Result> response) {
@@ -483,7 +483,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
             AccelerationRequest.server_cn2.add("[" + time + "]"+s2);
 
             //flag
-            if (OpenRocket.flag.equals("calculateStability") || OpenRocket.flag.equals("")) {
+            if (OpenRocket.flag.equals("稳定性") || OpenRocket.flag.equals("")) {
                 OpenRocket.eduCoderService.calculateStability(stabilityRequest).enqueue(new Callback<Result>() {
                     @Override
                     public void onResponse(Call<Result> call, Response<Result> response) {
@@ -500,10 +500,8 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
                     }
                 });
             }
-            OpenRocket.flag="calculateAcceleration";
 
-
-            if (OpenRocket.flag.equals("calculateAcceleration") || OpenRocket.flag.equals("")) {
+            if (OpenRocket.flag.equals("弹道轨迹") || OpenRocket.flag.equals("")) {
                 //发送请求
                 OpenRocket.eduCoderService.Acceleration(request).enqueue(new Callback<Result>() {
 
