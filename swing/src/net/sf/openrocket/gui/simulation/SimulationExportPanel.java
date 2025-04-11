@@ -241,7 +241,7 @@ public class SimulationExportPanel extends JPanel {
         edu_calculateCN_button = new SelectColorButton(trans.get("SimExpPan.but.Wing_calculateCN"));
         edu_calculateCN_button.addActionListener(e -> {
             // 创建一个模态对话框，父窗口为当前组件的顶层窗口
-            JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "总体弹体法向力系数", Dialog.ModalityType.MODELESS);
+            JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "尾翼法向力系数", Dialog.ModalityType.MODELESS);
 
             // 设置对话框的主布局为 BorderLayout
             dialog.setLayout(new BorderLayout());

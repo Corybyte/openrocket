@@ -460,7 +460,7 @@ public class AerodynamicForces implements Cloneable, Monitorable {
         componentForcesRequest request = new componentForcesRequest(componentForcesRequest.Client_CN, componentForcesRequest.Server_CN);
         request.cn =CN;
         request.othercn = other.getCN();
-        request.result_cn=this.CN;
+        request.result_cn=CN+other.getCN();
 
         if (this.CN == 0.0) {
             return this;
@@ -481,10 +481,13 @@ public class AerodynamicForces implements Cloneable, Monitorable {
                         request.Client_CN.add("[" + time + "]"+response.body().getResult());
                         request.Server_CN.add("[" + time + "]"+request.cn);
 
-                        if (response.body().getResult() != String.valueOf(request.cn)) {
+                        if (Double.valueOf(response.body().getResult().toString()) == request.cn) {
+                            System.out.println(Double.valueOf(response.body().getResult().toString()) != request.cn);
                             System.out.println("比对开始");
                             System.out.println("time:"+time+"Client"+response.body().getResult());
-                            System.out.println("time:"+time+"Sevrer"+request.cn);
+                            System.out.println("time:"+time+"Sevrer"+request.toString());
+                            System.out.println("time:"+time+"Sevrer"+request.result_cn);
+
                         }
                     }
                 }
