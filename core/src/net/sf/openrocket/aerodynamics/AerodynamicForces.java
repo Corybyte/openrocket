@@ -458,29 +458,33 @@ public class AerodynamicForces implements Cloneable, Monitorable {
         modID++;
 
         componentForcesRequest request = new componentForcesRequest(componentForcesRequest.Client_CN, componentForcesRequest.Server_CN);
-        request.cn = this.CN;
+        request.cn =CN;
         request.othercn = other.getCN();
+        request.result_cn=this.CN;
 
         if (this.CN == 0.0) {
             return this;
         }
 
         if (other.getCN() != this.CN) {
-
             System.out.println(this.CN);
             System.out.println(other.getCN());
         }
 
         if (OpenRocket.flag.equals("总体法向力")||OpenRocket.flag.equals("")) {
             double time = SimulationStatus.time;
+
             OpenRocket.eduCoderService.calculateComponentNonAxialForces(request).enqueue(new Callback<Result>() {
                 @Override
                 public void onResponse(Call<Result> call, Response<Result> response) {
                     synchronized (this) {
                         request.Client_CN.add("[" + time + "]"+response.body().getResult());
                         request.Server_CN.add("[" + time + "]"+request.cn);
+
                         if (response.body().getResult() != String.valueOf(request.cn)) {
-                            System.out.println(response.body().getResult());
+                            System.out.println("比对开始");
+                            System.out.println("time:"+time+"Client"+response.body().getResult());
+                            System.out.println("time:"+time+"Sevrer"+request.cn);
                         }
                     }
                 }
