@@ -479,7 +479,7 @@ public class AerodynamicForces implements Cloneable, Monitorable {
                 public void onResponse(Call<Result> call, Response<Result> response) {
                     synchronized (this) {
                         request.Client_CN.add("[" + time + "]"+response.body().getResult());
-                        request.Server_CN.add("[" + time + "]"+request.cn);
+                        request.Server_CN.add("[" + time + "]"+request.result_cn);
 
                         if (Double.valueOf(response.body().getResult().toString()) == request.cn) {
                             System.out.println(Double.valueOf(response.body().getResult().toString()) != request.cn);

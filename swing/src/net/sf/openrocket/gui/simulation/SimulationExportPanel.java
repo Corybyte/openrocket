@@ -341,6 +341,9 @@ public class SimulationExportPanel extends JPanel {
             JScrollPane leftScrollPane = new JScrollPane(leftTextArea);
             mainPanel.add(leftScrollPane);
             sortByTimestamp(componentForcesRequest.Client_CN);
+            System.out.println("-------");
+            System.out.println(componentForcesRequest.Client_CN.size());
+            System.out.println(componentForcesRequest.Server_CN.size());
 
             // 右边的小文本框
             JTextArea rightTextArea = new JTextArea();
@@ -1152,6 +1155,7 @@ public class SimulationExportPanel extends JPanel {
         return processedList;
     }
 
+
     public static ArrayList<String> sortByTimestamp(ArrayList<String> list) {
         // 使用自定义比较器对列表进行排序
         Collections.sort(list, new Comparator<String>() {
@@ -1161,8 +1165,13 @@ public class SimulationExportPanel extends JPanel {
                 double timestamp1 = extractTimestamp(s1);
                 // 提取 s2 的时间戳
                 double timestamp2 = extractTimestamp(s2);
-                // 比较时间戳
-                return Double.compare(timestamp1, timestamp2);
+                int result = Double.compare(timestamp1, timestamp2);
+                if (result != 0) {
+                    return result;
+                }
+                double d1 = extractData(s1);
+                double d2 = extractData(s2);
+                return  Double.compare(d1,d2);
             }
         });
 
@@ -1183,6 +1192,17 @@ public class SimulationExportPanel extends JPanel {
             return Double.parseDouble(s.substring(1, endIndex));
         }
         // 如果格式不正确，返回 0（可以根据需求调整）
+        return 0;
+    }
+    private static double extractData(String s) {
+        int startIndex = s.indexOf("]");
+        if (startIndex != -1) {
+            try{
+                return Double.parseDouble(s.substring(startIndex + 1));
+            }catch (NumberFormatException e){
+                return 0;
+            }
+        }
         return 0;
     }
 
