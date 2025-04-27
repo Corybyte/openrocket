@@ -327,10 +327,10 @@ public class SimulationExportPanel extends JPanel {
 
             // 设置对话框的主布局为 BorderLayout
             dialog.setLayout(new BorderLayout());
-
+            sortByTimestamp(componentForcesRequest.Client_CN);
+            sortByTimestamp(componentForcesRequest.Server_CN);
             // 创建主内容面板，使用 GridLayout 管理两部分内容
             JPanel mainPanel = new JPanel(new GridLayout(1, 2, 10, 0)); // 1 行 2 列，水平间距 10
-            sortByTimestamp(componentForcesRequest.Server_CN);
 
             // 左边的大文本框
             JTextArea leftTextArea = new JTextArea();
@@ -340,10 +340,6 @@ public class SimulationExportPanel extends JPanel {
             leftTextArea.setText(componentForcesRequest.Server_CN.toString());
             JScrollPane leftScrollPane = new JScrollPane(leftTextArea);
             mainPanel.add(leftScrollPane);
-            sortByTimestamp(componentForcesRequest.Client_CN);
-            System.out.println("-------");
-            System.out.println(componentForcesRequest.Client_CN.size());
-            System.out.println(componentForcesRequest.Server_CN.size());
 
             // 右边的小文本框
             JTextArea rightTextArea = new JTextArea();
@@ -1144,7 +1140,7 @@ public class SimulationExportPanel extends JPanel {
                     processedList.add(new Coordinate(d1, d2, d3));
 
                 } else {
-                    processedList.add(Double.parseDouble(data));
+                    processedList.add(data);
 
                 }
             } else {

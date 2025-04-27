@@ -513,7 +513,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
                                 Object result = response.body().getResult();
                                 //错误信息
                                 if (result instanceof String) {
-                                    AccelerationRequest.client_cn.add(result);
+                                    AccelerationRequest.client_cn.add("["+time+"]"+result);
                                 } else {
                                     ArrayList result2 = (ArrayList) result;
                                     ArrayList<Double> o1 = (ArrayList<Double>) result2.get(0);
