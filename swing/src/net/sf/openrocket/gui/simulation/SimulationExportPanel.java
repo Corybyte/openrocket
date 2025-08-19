@@ -476,7 +476,6 @@ public class SimulationExportPanel extends JPanel {
             }));
             ArrayList<Object> list = new ArrayList<>();
             ArrayList<Object> c1 = new ArrayList<>();
-            System.out.println(client_cn.get(0));
             if (!client_cn.isEmpty() && client_cn.get(0)instanceof Coordinate) {
                 for (Coordinate coo:client_cn){
                     c1.add(coo.x);
