@@ -445,8 +445,8 @@ public class SimulationExportPanel extends JPanel {
             closeButton.addActionListener(ev -> dialog.dispose()); // 点击按钮时关闭对话框
             net.sf.openrocket.util.ArrayList<Coordinate> client_cn = removeTimestamp(AccelerationRequest.client_cn);
             net.sf.openrocket.util.ArrayList<Coordinate> client_cn2 = removeTimestamp(AccelerationRequest.client_cn2);
-            net.sf.openrocket.util.ArrayList server_cn = removeTimestamp(AccelerationRequest.server_cn);
-            net.sf.openrocket.util.ArrayList server_cn2 = removeTimestamp(AccelerationRequest.server_cn2);
+            net.sf.openrocket.util.ArrayList<Coordinate> server_cn = removeTimestamp(AccelerationRequest.server_cn);
+            net.sf.openrocket.util.ArrayList<Coordinate> server_cn2 = removeTimestamp(AccelerationRequest.server_cn2);
 
             DataRequest2 request = new DataRequest2(client_cn, client_cn2, server_cn, server_cn2);
             JButton checkButton = new JButton("数据同步与测评");
@@ -462,7 +462,7 @@ public class SimulationExportPanel extends JPanel {
                     System.out.println(throwable.getMessage());
                 }
             }));
-            //发送坐标信息
+            //轨迹绘图
             checkButton.addActionListener(e1 -> OpenRocket.eduCoderService.checkJSON3(new DataRequest(AccelerationRequest.wordCoordinate, null)).enqueue(new Callback<Result>() {
                 @Override
                 public void onResponse(Call<Result> call, Response<Result> response) {
@@ -490,10 +490,28 @@ public class SimulationExportPanel extends JPanel {
 
                 }
             }
+            ArrayList<Object> s1 = new ArrayList<>();
+            if (!server_cn.isEmpty() && server_cn.get(0) instanceof Coordinate) {
+                for (Coordinate coo:server_cn){
+                    s1.add(coo.x);
+                }
+            }
+            ArrayList<Object> s2 = new ArrayList<>();
+            if (!server_cn2.isEmpty() && server_cn2.get(0) instanceof Coordinate) {
+                for (Coordinate coo:server_cn2){
+                    s2.add(coo.x);
+
+
+                }
+            }
+
             list.add(c1);
             list.add(c2);
+            list.add(s1);
+            list.add(s2);
             System.out.println(list.size());
             System.out.println(client_cn.size());
+            // 2个plt绘图
             if (!list.isEmpty()) {
                 checkButton.addActionListener(e1 -> {
                     OpenRocket.eduCoderService.AccelerationPLT(list).enqueue(new Callback<Result>() {
