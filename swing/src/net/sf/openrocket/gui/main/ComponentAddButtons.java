@@ -1,7 +1,10 @@
 package net.sf.openrocket.gui.main;
 
 
-import java.awt.*;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -9,7 +12,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.swing.*;
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JViewport;
+import javax.swing.Scrollable;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -19,7 +31,6 @@ import javax.swing.tree.TreeSelectionModel;
 
 import net.sf.openrocket.database.Databases;
 import net.sf.openrocket.document.OpenRocketDocumentFactory;
-import net.sf.openrocket.gui.configdialog.CommonStrings;
 import net.sf.openrocket.material.Material;
 import net.sf.openrocket.rocketcomponent.*;
 import net.sf.openrocket.util.Coordinate;
@@ -108,8 +119,13 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
         addButtonGroup(row,
                 //// Nose cone
                 new BodyComponentButton(NoseCone.class, trans.get("compaddbuttons.Nosecone")),
+
                 //// Glider
                 new BodyComponentButton(Glider.class, trans.get("compaddbuttons.Glider")),
+
+                //// Cavitation
+                new BodyComponentButton(Cavitation.class, trans.get("compaddbuttons.Cavitation")),
+
                 //// Body tube
                 new BodyComponentButton(BodyTube.class, trans.get("compaddbuttons.Bodytube")),
                 //// Transition
@@ -293,17 +309,16 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
         public ComponentButton(String text, Icon enabled, Icon disabled) {
             super(text, enabled);
 
-
             setVerticalTextPosition(SwingConstants.BOTTOM);        // Put the text below the icon
             setHorizontalTextPosition(SwingConstants.CENTER);        // Center the text horizontally
             //setIconTextGap(0); // Optional; sets the gap between the icon and the text
 
             // set the disabled icon if it is not null
             if (disabled != null) {
-//                setDisabledIcon(enabled);
+                setDisabledIcon(disabled);
             }
 
-//            setHorizontalAlignment(SwingConstants.CENTER);            // Center the button in its parent component
+            setHorizontalAlignment(SwingConstants.CENTER);            // Center the button in its parent component
 
             // if you have multiline text, you could use html to format it
             if (text != null && text.contains("\n")) {
@@ -327,8 +342,6 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
          */
         public ComponentButton(Class<? extends RocketComponent> c, String text) {
             this(text, ComponentIcons.getLargeIcon(c), ComponentIcons.getLargeDisabledIcon(c));
-
-
 
             if (c == null)
                 return;
@@ -455,21 +468,42 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
                 throw Reflection.handleWrappedException(e);
             }
 
+            try {
+                //待添加的组件
+                component = (RocketComponent) constructor.newInstance();
+                if (component.getClass() == Cavitation.class) {
+                    //获取当前选择的组件 默认为：主发动机
+                    //获取当前组件的树形结构
+                    buildcavitation(OpenRocketDocumentFactory.mydoc.getRocket(),0);
+                }
+            } catch (InstantiationException e) {
+                throw new BugException("Could not construct new instance of class " + constructor, e);
+            } catch (IllegalAccessException e) {
+                throw new BugException("Could not construct new instance of class " + constructor, e);
+            } catch (InvocationTargetException e) {
+                throw Reflection.handleWrappedException(e);
+            }
+
             // Next undo position is set by opening the configuration dialog
             document.addUndoPosition("Add " + component.getComponentName());
 
             log.info("Adding component " + component.getComponentName() + " to component " + c.getComponentName() +
                     " position=" + position);
-            if (component.getClass() != Glider.class) {
+            if (component.getClass() != Glider.class && component.getClass() != Cavitation.class ) {
                 if (position == null)
                     c.addChild(component);
                 else
                     c.addChild(component, position);
             }
+
+
+
             // Select new component and open config dialog
-            if (component.getClass() != Glider.class) {
+            if (component.getClass() != Glider.class && component.getClass() != Cavitation.class) {
                 selectionModel.setSelectionPath(ComponentTreeModel.makeTreePath(component));
             }
+
+
             JFrame parent = null;
             for (Component comp = ComponentAddButtons.this; comp != null; comp = comp.getParent()) {
                 if (comp instanceof JFrame) {
@@ -477,10 +511,11 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
                     break;
                 }
             }
-            if (component.getClass() != Glider.class) {
+            if (component.getClass() != Glider.class && component.getClass() != Cavitation.class) {
 
                 ComponentConfigDialog.showDialog(parent, document, component, false, true);
             }
+
         }
     }
 
@@ -812,6 +847,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
             }
         }
         build(rocket,i);
+
 //        //判断是否是第一个
 //        if (i==0){
 //            System.out.println("是第一个组件");
@@ -889,4 +925,54 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
         }
 
     }
+
+    public void buildcavitation(RocketComponent component,int flag){
+        System.out.println(component);
+        //头锥
+        try {
+            //stage
+            Constructor<AxialStage> stageConstructor = AxialStage.class.getConstructor();
+            AxialStage stage = stageConstructor.newInstance();
+            Constructor<NoseCone> coneConstructor = NoseCone.class.getConstructor();
+            //头锥
+            NoseCone noseCone = coneConstructor.newInstance();
+            //箭体
+            Constructor<BodyTube> bodyTubeConstructor = BodyTube.class.getConstructor();
+            BodyTube bodyTube = bodyTubeConstructor.newInstance();
+            //箭体2
+            Constructor<BodyTube> bodyTubeConstructor2 = BodyTube.class.getConstructor();
+            BodyTube bodyTube2 = bodyTubeConstructor2.newInstance();
+            //自由曲面稳定
+            Constructor<FreeformFinSet> freeformFinSetConstructor = FreeformFinSet.class.getConstructor();
+            FreeformFinSet freeformFinSet = freeformFinSetConstructor.newInstance();
+            //椭圆
+            Constructor<EllipticalFinSet> ellipticalFinSetConstructor = EllipticalFinSet.class.getConstructor();
+            EllipticalFinSet ellipticalFinSet = ellipticalFinSetConstructor.newInstance();
+
+
+
+//            stage.addChild(noseCone,flag);
+//            stage.addChild(bodyTube,flag+1);
+//            stage.addChild(bodyTube2,flag+2);
+//            stage.setName("圆盘空化器");
+//            component.addChild(stage,0);
+            bodyTube.setOuterRadius(0.025);
+            bodyTube.setLength(0.005);
+            bodyTube2.setOuterRadius(0.01);
+            bodyTube2.setLength(0.005);
+            stage.addChild(bodyTube, flag);
+            stage.addChild(bodyTube2, flag+1);
+            stage.setName("圆盘空化器");
+            component.addChild(stage,0);
+
+
+
+
+//            children.add(flag+1,bodyTube);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
 }

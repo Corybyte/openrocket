@@ -137,11 +137,11 @@ public class SwingStartup {
         scheduler.scheduleAtFixedRate(() -> {
             try {
                 System.out.println("json....");
-                serializeObjectToJsonFile(OpenRocketDocumentFactory.mydoc.getRocket().getSelectedConfiguration().getActiveInstances(), "E:/object.json");
+                serializeObjectToJsonFile(OpenRocketDocumentFactory.mydoc.getRocket().getSelectedConfiguration().getActiveInstances(), "./object.json");
                 //序列化密集点
-                File file = new File("E:/rocket.txt");
-                File file2 = new File("E://finset.txt");
-                File file3 = new File("E://rocket2D.txt");
+                File file = new File("./rocket.txt");
+                File file2 = new File("./finset.txt");
+                File file3 = new File("./rocket2D.txt");
                 if (file.exists()) {
                     file.delete();
                 }
@@ -176,7 +176,7 @@ public class SwingStartup {
                         beginX = endX;
                     }
                     if (c instanceof FinSet) {
-                        try (FileWriter writer = new FileWriter("E://finset.txt", true)) {
+                        try (FileWriter writer = new FileWriter("./finset.txt", true)) {
                             writer.write("--- FIN SET ---\n");
                             Coordinate[] finPoints = ((FinSet) c).getFinPoints();
                             for (Coordinate coordinate : finPoints) {
@@ -662,26 +662,27 @@ public class SwingStartup {
         double endX = 0;
         for (int i = 0; i < numPoints; i++) {
             double x = (double) i / (numPoints - 1) * length + beginX;
+            double x1 = (double) i / (numPoints - 1) * length;
             double r = 0; // 半径
 
             switch (type) {
                 case CONICAL:
-                    r = Transition.Shape.CONICAL.getRadius(x, radius, length, c.getShapeParameter());
+                    r = Transition.Shape.CONICAL.getRadius(x1, radius, length, c.getShapeParameter());
                     break;
                 case OGIVE:
-                    r = Transition.Shape.OGIVE.getRadius(x, radius, length, c.getShapeParameter());
+                    r = Transition.Shape.OGIVE.getRadius(x1, radius, length, c.getShapeParameter());
                     break;
                 case ELLIPSOID:
-                    r = Transition.Shape.ELLIPSOID.getRadius(x, radius, length, c.getShapeParameter());
+                    r = Transition.Shape.ELLIPSOID.getRadius(x1, radius, length, c.getShapeParameter());
                     break;
                 case POWER:
-                    r = Transition.Shape.POWER.getRadius(x, radius, length, c.getShapeParameter());
+                    r = Transition.Shape.POWER.getRadius(x1, radius, length, c.getShapeParameter());
                     break;
                 case PARABOLIC:
-                    r = Transition.Shape.PARABOLIC.getRadius(x, radius, length, c.getShapeParameter());
+                    r = Transition.Shape.PARABOLIC.getRadius(x1, radius, length, c.getShapeParameter());
                     break;
                 case HAACK:
-                    r = Transition.Shape.HAACK.getRadius(x, radius, length, c.getShapeParameter());
+                    r = Transition.Shape.HAACK.getRadius(x1, radius, length, c.getShapeParameter());
                     break;
             }
 
@@ -710,26 +711,27 @@ public class SwingStartup {
         double endX = 0.0;
         for (int i = 0; i < numPoints; i++) {
             double x = (double) i / (numPoints - 1) * length + beginX;
+            double x1 = (double) i / (numPoints - 1) * length;
             double r = 0; // 半径
 
             switch (type) {
                 case CONICAL:
-                    r = foreRadius + Transition.Shape.CONICAL.getRadius(x, aftRadius - foreRadius, length, c.getShapeParameter());
+                    r = foreRadius + Transition.Shape.CONICAL.getRadius(x1, aftRadius - foreRadius, length, c.getShapeParameter());
                     break;
                 case OGIVE:
-                    r = foreRadius + Transition.Shape.OGIVE.getRadius(x, aftRadius - foreRadius, length, c.getShapeParameter());
+                    r = foreRadius + Transition.Shape.OGIVE.getRadius(x1, aftRadius - foreRadius, length, c.getShapeParameter());
                     break;
                 case ELLIPSOID:
-                    r = foreRadius + Transition.Shape.ELLIPSOID.getRadius(x, aftRadius - foreRadius, length, c.getShapeParameter());
+                    r = foreRadius + Transition.Shape.ELLIPSOID.getRadius(x1, aftRadius - foreRadius, length, c.getShapeParameter());
                     break;
                 case POWER:
-                    r = foreRadius + Transition.Shape.POWER.getRadius(x, aftRadius - foreRadius, length, c.getShapeParameter());
+                    r = foreRadius + Transition.Shape.POWER.getRadius(x1, aftRadius - foreRadius, length, c.getShapeParameter());
                     break;
                 case PARABOLIC:
-                    r = foreRadius + Transition.Shape.PARABOLIC.getRadius(x, aftRadius - foreRadius, length, c.getShapeParameter());
+                    r = foreRadius + Transition.Shape.PARABOLIC.getRadius(x1, aftRadius - foreRadius, length, c.getShapeParameter());
                     break;
                 case HAACK:
-                    r = foreRadius + Transition.Shape.HAACK.getRadius(x, aftRadius - foreRadius, length, c.getShapeParameter());
+                    r = foreRadius + Transition.Shape.HAACK.getRadius(x1, aftRadius - foreRadius, length, c.getShapeParameter());
                     break;
             }
 
@@ -753,7 +755,7 @@ public class SwingStartup {
 
 
     public static void savePointsToFile(List<double[]> points) {
-        String filePath = "E:/rocket.txt";
+        String filePath = "./rocket.txt";
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
             for (double[] point : points) {
                 writer.write(String.format("%.10f\t%.10f\t%.10f", point[0], point[1], point[2]));
@@ -766,7 +768,7 @@ public class SwingStartup {
     }
 
     public static void save2DPointsToFile(List<double[]> points) {
-        String filePath = "E:/rocket2D.txt";
+        String filePath = "./rocket2D.txt";
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
             for (double[] point : points) {
                 writer.write(String.format("%.10f\t%.10f", point[0], point[1]));

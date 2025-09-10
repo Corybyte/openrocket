@@ -1093,7 +1093,6 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
                     });
                 }
             }
-
         }
         return total;
     }

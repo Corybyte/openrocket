@@ -334,7 +334,6 @@ public class ComponentRenderer {
         glu.gluCylinder(q, r.getInnerRadius(), r.getInnerRadius(),
                 -r.getLength(), LOD, 1);
         glu.gluQuadricOrientation(q, GLU.GLU_OUTSIDE);
-
     }
 
     private void renderLug(GL2 gl, LaunchLug t, Surface which) {

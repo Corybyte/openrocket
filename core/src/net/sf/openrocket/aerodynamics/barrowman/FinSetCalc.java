@@ -141,6 +141,7 @@ public class FinSetCalc extends RocketComponentCalc {
 			cna *= 0.913;
 			break;
 		
+
 		case 7:
 			cna *= 0.854;
 			break;
