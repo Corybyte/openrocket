@@ -4,12 +4,13 @@ package net.sf.openrocket.gui.main;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Serial;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.*;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -19,26 +20,31 @@ import javax.swing.KeyStroke;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.sf.openrocket.appearance.Appearance;
 import net.sf.openrocket.appearance.defaults.DefaultAppearance;
 import net.sf.openrocket.document.OpenRocketDocument;
+import net.sf.openrocket.document.OpenRocketDocumentFactory;
 import net.sf.openrocket.document.Simulation;
 import net.sf.openrocket.gui.configdialog.ComponentConfigDialog;
 import net.sf.openrocket.gui.dialogs.ScaleDialog;
 import net.sf.openrocket.gui.util.Icons;
 import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.logging.Markers;
-import net.sf.openrocket.rocketcomponent.ComponentChangeEvent;
-import net.sf.openrocket.rocketcomponent.ComponentChangeListener;
-import net.sf.openrocket.rocketcomponent.ParallelStage;
-import net.sf.openrocket.rocketcomponent.Rocket;
-import net.sf.openrocket.rocketcomponent.RocketComponent;
-import net.sf.openrocket.rocketcomponent.AxialStage;
+import net.sf.openrocket.rocketcomponent.*;
+import net.sf.openrocket.rw.Paraminfo;
+import net.sf.openrocket.rw.ReadNormalFile;
+import net.sf.openrocket.rw.WriteNormalFile;
 import net.sf.openrocket.startup.Application;
+import net.sf.openrocket.util.Coordinate;
 import net.sf.openrocket.util.ORColor;
 import net.sf.openrocket.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static net.sf.openrocket.startup.SwingStartup.*;
+import static net.sf.openrocket.startup.SwingStartup.noseCone3DPoint2d;
 
 
 /**
@@ -82,6 +88,7 @@ public class RocketActions {
 	private final RocketAction exportOBJAction;
 	private static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(RocketActions.class);
+	private final SaveAction saveAction;
 
 
 	public RocketActions(OpenRocketDocument document, DocumentSelectionModel selectionModel,
@@ -105,7 +112,7 @@ public class RocketActions {
 		this.moveUpAction = new MoveUpAction();
 		this.moveDownAction = new MoveDownAction();
 		this.exportOBJAction = new ExportOBJAction();
-
+		this.saveAction = new SaveAction();
 		OpenRocketClipboard.addClipboardListener(new ClipboardListener() {
 			@Override
 			public void clipboardChanged() {
@@ -153,6 +160,7 @@ public class RocketActions {
 		moveUpAction.clipboardChanged();
 		moveDownAction.clipboardChanged();
 		exportOBJAction.clipboardChanged();
+		saveAction.clipboardChanged();
 	}
 	
 
@@ -177,6 +185,11 @@ public class RocketActions {
 	public Action getDuplicateAction() {
 		return duplicateAction;
 	}
+
+	public Action getSaveAction() {
+		return saveAction;
+	}
+
 	
 	public Action getEditAction() {
 		return editAction;
@@ -1254,6 +1267,350 @@ public class RocketActions {
 			}
 			return false;
 		}
+	}
+
+
+	/**
+	 * Action to save the current document.
+	 */
+	private class SaveAction extends RocketAction {
+		private static final long serialVersionUID = 1L;
+
+		public SaveAction() {
+			//// Save
+			this.putValue(NAME, "保存模型");
+//			this.putValue(MNEMONIC_KEY, KeyEvent.VK_S);
+//			this.putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S,
+//					Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
+//			this.putValue(SHORT_DESCRIPTION, trans.get("RocketActions.SaveAct.ttip.Save"));
+			this.putValue(SMALL_ICON, Icons.FILE_SAVE);
+//			clipboardChanged();
+		}
+
+
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			List<double[]> point3ds = new ArrayList<>();
+			List<double[]> point2ds = new ArrayList<>();
+			List Finlist = new ArrayList<>();
+			List<double[]> Finxlist = new ArrayList<>();
+			try {
+				ArrayList<Object>  result = serializeObjectToJsonFile(OpenRocketDocumentFactory.mydoc.getRocket().getSelectedConfiguration().getActiveInstances(), "./object.json");
+
+				// System.out.println(result);
+
+
+				//序列化密集点
+				File file = new File("./rocket.txt");
+				File file2 = new File("./finset.txt");
+				File file3 = new File("./rocket2D.txt");
+				if (file.exists()) {
+					file.delete();
+				}
+				if (file2.exists()) {
+					file2.delete();
+				}
+				if (file3.exists()) {
+					file3.delete();
+					System.out.println("文件3删除");
+				}
+				List<RocketComponent> allChildren = OpenRocketDocumentFactory.mydoc.getRocket().getAllChildren();
+				//待密集组件list
+				ArrayList<RocketComponent> components = new ArrayList<>();
+				for (RocketComponent component : allChildren) {
+					if (component instanceof Transition || component instanceof FinSet || component instanceof BodyTube) {
+						components.add(component);
+					}
+				}
+				double beginX = 0;
+				// 圆周旋转点的个数
+				int rho_point = 180;
+
+
+				for (RocketComponent c : components) {
+					List<double[]> pointi = new ArrayList<>();
+					List<double[]> point2di = new ArrayList<>();
+					if (c instanceof BodyTube) {
+						beginX = bodyTube3D(c.getLength(), ((BodyTube) c).getOuterRadius(), rho_point, 100, beginX);
+						pointi = bodyTube3DPoint3d(c.getLength(), ((BodyTube) c).getOuterRadius(), rho_point, 100, beginX);
+						point2di = bodyTube3DPoint2d(c.getLength(), ((BodyTube) c).getOuterRadius(), rho_point, 100, beginX);
+					}
+					if (c instanceof NoseCone) {
+						double endX = noseCone3D(rho_point, (Transition) c, ((Transition) c).getShapeType(), c.getLength(), ((NoseCone) c).getBaseRadius(), 100, beginX);
+						pointi = noseCone3DPoint3d(rho_point, (Transition) c, ((Transition) c).getShapeType(), c.getLength(), ((NoseCone) c).getBaseRadius(), 100, beginX);
+						point2di = noseCone3DPoint2d(rho_point, (Transition) c, ((Transition) c).getShapeType(), c.getLength(), ((NoseCone) c).getBaseRadius(), 100, beginX);
+						beginX = endX;
+					}
+					if (c instanceof Transition && !(c instanceof NoseCone)) {
+						double endX = transition3D(rho_point, (Transition) c, ((Transition) c).getShapeType(), c.getLength(), ((Transition) c).getForeRadius(), ((Transition) c).getAftRadius(), 100, beginX);
+						pointi = transition3DPoint3d(rho_point, (Transition) c, ((Transition) c).getShapeType(), c.getLength(), ((Transition) c).getForeRadius(), ((Transition) c).getAftRadius(), 100, beginX);
+						point2di = transition3DPoint2d(rho_point, (Transition) c, ((Transition) c).getShapeType(), c.getLength(), ((Transition) c).getForeRadius(), ((Transition) c).getAftRadius(), 100, beginX);
+						beginX = endX;
+					}
+					if (c instanceof FinSet) {
+						try (FileWriter writer = new FileWriter("./finset.txt", true)) {
+							writer.write("--- FIN SET ---\n");
+							Coordinate[] finPoints = ((FinSet) c).getFinPoints();
+							List<double[]> finpoint = new ArrayList<>();
+							Finxlist.add(new double[] {c.getPosition().x});
+							for (Coordinate coordinate : finPoints) {
+								writer.write(coordinate.x + " " + coordinate.y + " " + coordinate.z + "\n");
+								finpoint.add(new double[] {coordinate.x, coordinate.y, coordinate.z});
+							}
+							Finlist.add(finpoint);
+							System.out.println("finset write success");
+						} catch (IOException exception) {
+							throw new RuntimeException(exception);
+						}
+					}
+					point3ds.addAll(pointi);
+					point2ds.addAll(point2di);
+				}
+
+			} catch(Exception ex){
+				ex.printStackTrace();
+			}
+
+			//todo
+			//读取当前目录json txt
+			//便利Map
+
+			InstanceMap map = OpenRocketDocumentFactory.mydoc.getRocket().getSelectedConfiguration().getActiveInstances();
+
+
+
+			// 创建 ObjectMapper 实例
+			ObjectMapper mapper = new ObjectMapper();
+			// 配置 ObjectMapper 为无转义输出
+			mapper.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, false);
+
+			List<Paraminfo> paraminfoList = ReadNormalFile.readParams(new File("input.txt"));
+
+			File file = new File("./output");
+			if (!file.exists()) {
+				boolean created = file.mkdirs();
+			} else {
+				// 删除当前目录下的output文件夹
+				String folderPath = "./output";
+
+				// 方法1: 使用NIO API（推荐）
+				boolean success = deleteFolder(folderPath);
+
+				if (!success) {
+					System.out.println("使用NIO方法删除失败，尝试使用传统方法...");
+
+					// 方法2: 使用传统File API
+					File folder = new File(folderPath);
+					success = deleteFolderLegacy(folder);
+
+					if (success) {
+						System.out.println("传统方法删除成功");
+					} else {
+						System.out.println("删除失败，请检查文件夹是否存在或是否有足够权限");
+					}
+				}
+				boolean created = file.mkdirs();
+			}
+
+
+			// 先写2d跟3d的结果
+			List<Paraminfo> result0 = new ArrayList<>();
+			Paraminfo paraminfo = new Paraminfo();
+			paraminfo.setName("2Dpoint");
+			paraminfo.setType("FLT");
+			paraminfo.setSign("%ComArray");
+			paraminfo.setColumnNames("x y");
+			paraminfo.setValue(doubleListToString(point2ds));
+			result0.add(paraminfo);
+			Paraminfo paraminfo1 = new Paraminfo();
+			paraminfo1.setName("3Dpoint");
+			paraminfo1.setType("FLT");
+			paraminfo1.setSign("%ComArray");
+			paraminfo1.setColumnNames("x y z");
+			paraminfo1.setValue(doubleListToString(point3ds));
+			result0.add(paraminfo1);
+			WriteNormalFile.writeParams(result0, "./output/00points.txt");
+
+			// 然后写翼型
+			int i = 0;
+			List<Paraminfo> finre = new ArrayList<>();
+			for (Object finpointi : Finlist) {
+				Paraminfo paraminfo2 = new Paraminfo();
+				double[] finxi = Finxlist.get(i);
+				String finxi_str = String.format("%06f", finxi[0]);
+				paraminfo2.setName(finxi_str);
+				paraminfo2.setType("FLT");
+				paraminfo2.setSign("%ComArray");
+				paraminfo2.setColumnNames("x y z");
+				paraminfo2.setValue(doubleListToString((List<double[]>) finpointi));
+				i++;
+				finre.add(paraminfo2);
+//				System.out.println(finpointi);
+			}
+
+			WriteNormalFile.writeParams(finre, "./output/00Finset.txt");
+
+
+			for (RocketComponent keyi : map.keySet()) {
+
+				List<Paraminfo> result = new ArrayList<>();
+
+				try {
+					if (!(keyi instanceof Rocket)) {
+						// 直接将键序列化为对象形式，避免多层嵌套的字符串
+//						System.out.println(keyi);
+
+						Map mapi = mapper.convertValue(keyi, Map.class);
+						mapi.put("rocketComponent", keyi.getClass().getSimpleName());
+//						System.out.println(mapi);
+
+						for (Object key : mapi.keySet()) {
+							Object value = mapi.get(key);
+							processValue(key.toString(), value, result);
+						}
+						Object position = mapi.get("position");
+						Map positionM = mapper.convertValue(position, Map.class);
+						String x = String.format("%06f", positionM.get("x"));
+						String component = keyi.getClass().getSimpleName();
+
+						String filename = "./output/out_" + x + component + ".txt";
+						WriteNormalFile.writeParams(result, filename);
+					}
+				} catch (Exception E) {
+					Map mapi = mapper.convertValue(keyi, Map.class);
+					E.printStackTrace();
+				}
+
+			}
+		}
+
+		@Override
+		public void clipboardChanged() {
+//			// Save action is always enabled when there's a document
+//			this.setEnabled(document != null);
+		}
+
+		// 使用传统File类的递归删除方法
+		public static boolean deleteFolderLegacy(File folder) {
+			if (folder == null || !folder.exists()) {
+				return false;
+			}
+
+			if (!folder.isDirectory()) {
+				return folder.delete();
+			}
+
+			File[] files = folder.listFiles();
+			if (files != null) {
+				for (File file : files) {
+					if (file.isDirectory()) {
+						deleteFolderLegacy(file);
+					} else {
+						file.delete();
+					}
+				}
+			}
+
+			return folder.delete();
+		}
+
+		public static boolean deleteFolder(String folderPath) {
+			Path path = Paths.get(folderPath);
+
+			if (!Files.exists(path)) {
+				System.out.println("文件夹不存在: " + folderPath);
+				return false;
+			}
+
+			if (!Files.isDirectory(path)) {
+				System.out.println("路径不是文件夹: " + folderPath);
+				return false;
+			}
+
+			try {
+				// 使用Files.walkFileTree递归删除文件夹及其内容
+				Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+					@Override
+					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+						System.out.println("正在删除文件: " + file);
+						Files.delete(file);
+						return FileVisitResult.CONTINUE;
+					}
+
+					@Override
+					public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+						System.out.println("正在删除文件夹: " + dir);
+						Files.delete(dir);
+						return FileVisitResult.CONTINUE;
+					}
+				});
+
+				System.out.println("文件夹删除成功: " + folderPath);
+				return true;
+			} catch (IOException e) {
+				System.err.println("删除文件夹时出错: " + e.getMessage());
+				return false;
+			}
+		}
+
+		public static String doubleListToString(List<double[]> list) {
+			StringBuilder sb = new StringBuilder();
+
+			// 将List<double[]>转换为字符串，每行用换行符分隔，每列用空格分隔
+			for (int i = 0; i < list.size(); i++) {
+				double[] row = list.get(i);
+				for (int j = 0; j < row.length; j++) {
+					sb.append(row[j]);
+					if (j < row.length - 1) {
+						sb.append(" "); // 列之间用空格分隔
+					}
+				}
+				if (i < list.size() - 1) {
+					sb.append("\n"); // 行之间用换行符分隔
+				}
+			}
+
+			return sb.toString();
+		}
+
+
+		// 添加递归处理嵌套Map的辅助方法
+		private void processValue(String prefix, Object value, List<Paraminfo> result) {
+			if (value instanceof Map) {
+				// 如果是Map，递归处理每个键值对
+				Map<?, ?> nestedMap = (Map<?, ?>) value;
+				for (Object nestedKey : nestedMap.keySet()) {
+					Object nestedValue = nestedMap.get(nestedKey);
+					String newPrefix = prefix + "_" + nestedKey.toString();
+					processValue(newPrefix, nestedValue, result);
+				}
+			} else if (value instanceof List) {
+				// 如果是List，处理每个元素
+				List<?> valueList = (List<?>) value;
+				for (int i = 0; i < valueList.size(); i++) {
+					Object item = valueList.get(i);
+					processValue(prefix + "_" + i, item, result);
+				}
+			} else {
+				// 基本类型或简单对象
+				Paraminfo valueParam = new Paraminfo();
+				valueParam.setName(prefix);
+				// 增加分类
+				if (value instanceof String) {
+					valueParam.setType("STR");
+				} else if (value instanceof Boolean) {
+					valueParam.setType("STR");
+				} else {
+					valueParam.setType("FLT");
+				}
+
+				valueParam.setSign("%single");
+				valueParam.setValue(value != null ? value.toString() : "null");
+				result.add(valueParam);
+			}
+		}
+
 	}
 
 }

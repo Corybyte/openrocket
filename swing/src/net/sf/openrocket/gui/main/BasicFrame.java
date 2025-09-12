@@ -1384,7 +1384,7 @@ public class BasicFrame extends JFrame {
 	 *
 	 * @return true if the file was saved, false otherwise
 	 */
-	private boolean saveAction() {
+	public boolean saveAction() {
 		File file = document.getFile();
 		if (file == null || document.getDefaultStorageOptions().getFileType().equals(FileType.ROCKSIM)
 				|| document.getDefaultStorageOptions().getFileType().equals(FileType.RASAERO)) {

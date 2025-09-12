@@ -223,6 +223,12 @@ public class DesignPanel extends JSplitPane {
 
         button = new IconButton();
         button.setHorizontalAlignment(SwingConstants.LEFT);
+        RocketActions.tieActionToButton(button, parent.getRocketActions().getSaveAction());
+        button.setMnemonic(0);
+        panel.add(button, "sizegroup buttons");
+
+        button = new IconButton();
+        button.setHorizontalAlignment(SwingConstants.LEFT);
         RocketActions.tieActionToButton(button, parent.getRocketActions().getDeleteAction());
         button.setMnemonic(0);
         panel.add(button, "sizegroup buttons");
